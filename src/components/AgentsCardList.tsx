@@ -1,8 +1,8 @@
 // 文件：src/components/AgentsCardList.tsx
 import React from 'react';
 
-/** 示例的 agent 数据类型，可改成你实际的 interface */
-interface AgentItem {
+/** 示例的 agent 数据类型，可根据实际情况扩展 */
+export interface AgentItem {
     id: string;
     name: string;
     description?: string;
@@ -10,15 +10,17 @@ interface AgentItem {
     status?: string;
 }
 
-/** 组件的 props */
+/** 组件的 props，增加两个回调 */
 interface AgentsCardListProps {
     agents: AgentItem[];
-    onOpenAgent?: (id: string) => void;
+    onOpenDetail: (tool: AgentItem) => void;
+    onStartTool: (tool: AgentItem) => void;
 }
 
 export const AgentsCardList: React.FC<AgentsCardListProps> = ({
                                                                   agents,
-                                                                  onOpenAgent,
+                                                                  onOpenDetail,
+                                                                  onStartTool,
                                                               }) => {
     return (
         <div className="min-h-screen bg-gray-50 p-4">
@@ -57,12 +59,18 @@ export const AgentsCardList: React.FC<AgentsCardListProps> = ({
                             </p>
                         )}
                         {/* 卡片底部：操作按钮 */}
-                        <div className="flex justify-end">
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                                onClick={() => onOpenDetail(agent)}
+                            >
+                                Detail
+                            </button>
                             <button
                                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                onClick={() => onOpenAgent?.(agent.id)}
+                                onClick={() => onStartTool(agent)}
                             >
-                                Open
+                                Start
                             </button>
                         </div>
                     </div>
