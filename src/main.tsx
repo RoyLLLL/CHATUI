@@ -1,5 +1,5 @@
 // 文件：src/main.tsx
-import React, { StrictMode } from "react";
+import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { v4 as uuidv4 } from "uuid";
 import { BrowserRouter, Route, Routes } from "react-router-dom";

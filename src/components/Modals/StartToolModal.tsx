@@ -1,9 +1,9 @@
 // 文件：src/components/Modals/StartToolModal.tsx
 import React, { useState } from 'react';
-import { AgentItem } from '../AgentsCardList';
+import { ToolItem } from '../AgentsCardList'; // 修改为 ToolItem
 
 interface StartToolModalProps {
-    tool: AgentItem;
+    tool: ToolItem; // 使用 ToolItem 类型
     onClose: () => void;
 }
 
@@ -18,7 +18,7 @@ export const StartToolModal: React.FC<StartToolModalProps> = ({ tool, onClose })
         }
 
         const payload = {
-            toolId: tool.id,
+            toolName: tool.name, // 使用 tool.name
             agentName,
             prompt,
         };
@@ -37,7 +37,7 @@ export const StartToolModal: React.FC<StartToolModalProps> = ({ tool, onClose })
             }
 
             const data = await response.json();
-            alert('Tool created successfully!'+ data);
+            alert('Tool created successfully!' + data);
             onClose();
         } catch (error) {
             console.error('Error creating tool:', error);
@@ -47,38 +47,46 @@ export const StartToolModal: React.FC<StartToolModalProps> = ({ tool, onClose })
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
-                <h2 className="text-xl font-bold mb-4">Start Tool: {tool.name}</h2>
+            <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+                <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">Start Tool: {tool.name}</h2>
+
+                {/* 显示工具类型 */}
+                <div className="mb-4 text-center text-gray-600">
+                    <p><strong>Type:</strong> {tool.type}</p>
+                </div>
+
                 <div className="mb-4">
-                    <label className="block text-gray-700 mb-1">Agent Name:</label>
+                    <label className="block text-gray-700 mb-1 font-medium">Agent Name:</label>
                     <input
                         type="text"
                         value={agentName}
                         onChange={(e) => setAgentName(e.target.value)}
                         placeholder="Enter agent name"
-                        className="w-full border p-2 rounded"
+                        className="w-full border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out"
                     />
                 </div>
+
                 <div className="mb-4">
-                    <label className="block text-gray-700 mb-1">Prompt:</label>
+                    <label className="block text-gray-700 mb-1 font-medium">Prompt:</label>
                     <textarea
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         placeholder="Enter prompt"
-                        className="w-full border p-2 rounded"
+                        className="w-full border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out"
                         rows={4}
                     />
                 </div>
-                <div className="flex justify-end space-x-2">
+
+                <div className="flex justify-between space-x-4">
                     <button
                         onClick={handleCreate}
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-500 transition duration-300 ease-in-out shadow-lg transform hover:scale-105"
                     >
-                        Create
+                        Start
                     </button>
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                        className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition duration-300 ease-in-out shadow-lg transform hover:scale-105"
                     >
                         Close
                     </button>

@@ -29,104 +29,80 @@ export async function getAssistants(): Promise<Config[] | null> {
 }
 
 
-export interface AgentItem {
-    id: string;
+export interface ToolItem {
     name: string;
     description?: string;
-    avatarUrl?: string;
-    status?: string;
+    type: string;  // 新增的 type 字段
 }
 
+
 // 示例：静态数据，或改成 fetch / axios 调用后端
-export const mockAgents: AgentItem[] = [
+export const mockAgents: ToolItem[] = [
     {
-        id: '1',
+
         name: 'Sales Assistant',
         description: 'Handles customer queries and sales-related tasks.',
-        avatarUrl: '',
-        status: 'Active',
+        type: '',
     },
     {
-        id: '2',
         name: 'Support Bot',
         description: 'Provides troubleshooting steps and Q&A for customers.',
-        avatarUrl: '',
-        status: 'Idle',
+        type: '',
     },
     {
-        id: '3',
         name: 'HR Assistant',
         description: 'Manages onboarding and HR-related inquiries for new hires.',
-        avatarUrl: '',
-        status: 'Active',
+        type: '',
     },
     {
-        id: '4',
         name: 'Sales Assistant',
         description: 'Handles customer queries and sales-related tasks.',
-        avatarUrl: '',
-        status: 'Active',
+        type: '',
     },
     {
-        id: '5',
         name: 'Support Bot',
         description: 'Provides troubleshooting steps and Q&A for customers.',
-        avatarUrl: '',
-        status: 'Idle',
+        type: '',
     },
     {
-        id: '6',
         name: 'HR Assistant',
         description: 'Manages onboarding and HR-related inquiries for new hires.',
-        avatarUrl: '',
-        status: 'Active',
+        type: '',
     },
     {
-        id: '7',
         name: 'Sales Assistant',
         description: 'Handles customer queries and sales-related tasks.',
-        avatarUrl: '',
-        status: 'Active',
+        type: '',
     },
     {
-        id: '8',
         name: 'Support Bot',
         description: 'Provides troubleshooting steps and Q&A for customers.',
-        avatarUrl: '',
-        status: 'Idle',
+        type: '',
     },
     {
-        id: '9',
         name: 'HR Assistant',
         description: 'Manages onboarding and HR-related inquiries for new hires.',
-        avatarUrl: '',
-        status: 'Active',
+        type: '',
     },
     {
-        id: '10',
         name: 'Sales Assistant',
         description: 'Handles customer queries and sales-related tasks.',
-        avatarUrl: '',
-        status: 'Active',
+        type: '',
     },
     {
-        id: '11',
         name: 'Support Bot',
         description: 'Provides troubleshooting steps and Q&A for customers.',
-        avatarUrl: '',
-        status: 'Idle',
+        type: '',
     },
     {
-        id: '12',
         name: 'HR Assistant',
         description: 'Manages onboarding and HR-related inquiries for new hires.',
-        avatarUrl: '',
-        status: 'Active',
+        type: '',
     },
 ];
 
 // 如果你需要某些函数来获取数据
-export function getAllAgents(): AgentItem[] {
+export function getAllAgents(): ToolItem[] {
     // 这里可以改成实际的API调用
     return mockAgents;
 }
