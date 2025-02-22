@@ -1,4 +1,3 @@
-// 文件：src/main.tsx
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { v4 as uuidv4 } from "uuid";
@@ -8,12 +7,10 @@ import "./index.css";
 import App from "./App.tsx";
 import { NotFound } from "./components/NotFound.tsx";
 
-// 新增引入 DashboardLayout 和各子页面组件
 import { DashboardLayout } from "./components/DashboardLayout";
-import { ToolsPage } from "./pages/ToolsPage";
+import { ExplorePages } from "./pages/ExplorePages.tsx";
 import { AgentPage } from "./pages/AgentPage";
 import { ChatPage } from "./pages/ChatPage";
-import { SettingPage } from "./pages/SettingPage";
 
 function getCookie(name: string) {
     const cookie = document.cookie.split("; ").find((row) => row.startsWith(`${name}=`));
@@ -39,18 +36,15 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
                 <Routes>
-                    {/* 原有路由，不使用 DashboardLayout */}
                     <Route path="/thread/:chatId" element={<App />} />
                     <Route path="/assistant/:assistantId/edit" element={<App edit={true} />} />
                     <Route path="/assistant/:assistantId" element={<App />} />
                     <Route path="/" element={<App />} />
 
-                    {/* 嵌套路由：DashboardLayout 固定顶部导航 */}
                     <Route element={<DashboardLayout />}>
-                        <Route path="/tools" element={<ToolsPage />} />
-                        <Route path="/agent" element={<AgentPage />} />
-                        <Route path="/chat" element={<ChatPage />} />
-                        <Route path="/setting" element={<SettingPage />} />
+                        <Route path="/explore" element={<ExplorePages />} />
+                        <Route path="/studio" element={<ChatPage />} />
+                        <Route path="/tools" element={<AgentPage />} />
                     </Route>
 
                     <Route path="*" element={<NotFound />} />
