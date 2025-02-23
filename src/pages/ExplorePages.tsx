@@ -1,57 +1,134 @@
 import React, { useState } from 'react';
-import { ToolItem } from '../api/assistants';
+import { AgentItem } from '../api/assistants';
 import { getAllAgents } from '../api/assistants';
 import { ToolDetailModal } from '../components/Modals/ToolDetailModal';
+import { Chat } from "../components/Chat";
+import { Link } from 'react-router-dom'; // Link component for navigation
+import AgentCard from "../components/AgentCard";
+
 
 export const ExplorePages: React.FC = () => {
 
-    const tools: ToolItem[] = getAllAgents();
+    const allAgents: AgentItem[] = getAllAgents();
 
-
-    const [selectedTool, setSelectedTool] = useState<ToolItem | null>(null);
+    const [selectedTool, setSelectedTool] = useState<AgentItem | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
+    const [activeChatTool, setActiveChatTool] = useState<AgentItem | null>(null);
+    const [isDiscoveryPage, setIsDiscoveryPage] = useState(false); // New state to track whether we're on the discovery page
 
-
-    const handleCardClick = (tool: ToolItem) => {
-        setSelectedTool(tool);
-        setShowDetailModal(true);
+    // Mock functions for stream and stopStream (replace with real ones if needed)
+    const startStream = async (message: any, threadId: string, assistantType: string) => {
+        console.log(`Starting stream with message: ${message}, threadId: ${threadId}, assistantType: ${assistantType}`);
+        // Implement actual stream logic here
     };
 
+    const stopStream = () => {
+        console.log("Stopping stream");
+        // Implement actual stop stream logic here
+    };
+    const stream = { status: "idle" }; // Replace with actual stream status from your state management
+
+
+    const handleCardClick = (tool: AgentItem) => {
+        setSelectedTool(tool);
+        setShowDetailModal(true);
+        setIsDiscoveryPage(false); // Reset discovery state to show chat
+    };
+
+    // Handle workspace name click (switch to Chat)
+    const handleWorkspaceToolClick = (tool: AgentItem) => {
+        setActiveChatTool(tool); // Set the active tool for the chat page
+        setSelectedTool(null); // Close the modal (if open)
+        setShowDetailModal(false); // Close the modal
+    };
 
     const handleStartTool = () => {
         if (selectedTool) {
-            console.log(`Starting tool: ${selectedTool.name}`);
-
             setShowDetailModal(false);
         }
     };
 
+    const handleDiscoveryClick = () => {
+        setActiveChatTool(null); // Reset the active chat tool
+        setIsDiscoveryPage(true); // Set the discovery page state to true to show the card list
+    };
+
+
+    // Handle closing the modal
+    const handleCloseModal = () => {
+        setShowDetailModal(false);
+        setIsDiscoveryPage(true); // Show the card list again when modal is closed
+    };
+
     return (
-        <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {tools.map((tool, index) => (
-                    <div
-                        key={index}
-                        className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow p-4 cursor-pointer"
-                        onClick={() => handleCardClick(tool)}
+        <div className="flex">
+            {/* Left Sidebar */}
+            <div className="w-1/6 p-4">
+                <Link to="/explore">
+                    <button
+                        className="bg-blue-500 text-white p-2 rounded mb-6 w-full"
+                        onClick={handleDiscoveryClick} // Trigger the reset of discovery page state
                     >
-                        <div className="mb-4">
-                            <h2 className="text-lg font-semibold">{tool.name}</h2>
-                            <p className="text-sm text-gray-500">{tool.type}</p>
-                        </div>
-                        {tool.description && <p className="text-gray-700 mb-4">{tool.description}</p>}
-                    </div>
-                ))}
+                        Discovery
+                    </button>
+                </Link>
+
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <h2 className="text-lg font-semibold mb-4">WORKSPACE</h2>
+                    <ul>
+                        {allAgents.map((tool, index) => (
+                            <li
+                                key={index}
+                                className="text-gray-700 cursor-pointer hover:text-blue-500"
+                                onClick={() => handleWorkspaceToolClick(tool)} // Switch to Chat on click
+                            >
+                                {tool.name}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             </div>
 
+            {/* Right Content Area */}
+            <div className="w-5/6 p-4">
+                {/* Conditionally render Chat or ToolDetailModal or the Card List */}
+                {activeChatTool ? (
+                    <Chat
+                        startStream={startStream} // Pass startStream to Chat
+                        stopStream={stopStream} // Pass stopStream to Chat
+                        stream={stream} // Pass stream status
+                    />
+                ) : isDiscoveryPage ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {allAgents.map((tool, index) => (
+                            <AgentCard
+                                key={index}
+                                tool={tool}
+                                onClick={() => handleCardClick(tool)} // Open ToolDetailModal
+                            />
+                        ))}
+                    </div>
+                ) :  (
+                    // If no tool is selected for chat and not on the discovery page, show the tool card list
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {allAgents.map((tool, index) => (
+                            <AgentCard
+                                key={index}
+                                tool={tool}
+                                onClick={() => handleCardClick(tool)} // Open ToolDetailModal
+                            />
+                        ))}
+                    </div>
+                )}
 
-            {showDetailModal && selectedTool && (
-                <ToolDetailModal
-                    tool={selectedTool}
-                    onClose={() => setShowDetailModal(false)}
-                    onStart={handleStartTool}
-                />
-            )}
-        </>
+                {showDetailModal && selectedTool && (
+                    <ToolDetailModal
+                        tool={selectedTool}
+                        onClose={handleCloseModal} // Close modal and show card list
+                        onStart={handleStartTool}
+                    />
+                )}
+            </div>
+        </div>
     );
 };

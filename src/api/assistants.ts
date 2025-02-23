@@ -29,7 +29,7 @@ export async function getAssistants(): Promise<Config[] | null> {
 }
 
 
-export interface ToolItem {
+export interface AgentItem {
     name: string;
     description?: string;
     type: string;  // 新增的 type 字段
@@ -37,7 +37,7 @@ export interface ToolItem {
 
 
 // 示例：静态数据，或改成 fetch / axios 调用后端
-export const mockAgents: ToolItem[] = [
+export const mockAgents: AgentItem[] = [
     {
 
         name: 'Sales Assistant',
@@ -102,7 +102,7 @@ export const mockAgents: ToolItem[] = [
 ];
 
 // 如果你需要某些函数来获取数据
-export function getAllAgents(): ToolItem[] {
+export function getAllAgents(): AgentItem[] {
     // 这里可以改成实际的API调用
     return mockAgents;
 }

@@ -14,6 +14,7 @@ import { useMessageEditing } from "../hooks/useMessageEditing.ts";
 import { MessageEditor } from "./MessageEditor.tsx";
 import { Message } from "../types.ts";
 
+
 interface ChatProps extends Pick<StreamStateProps, "stream" | "stopStream"> {
   startStream: (
     message: MessageWithFiles | null,
