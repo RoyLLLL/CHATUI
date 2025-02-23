@@ -5,6 +5,7 @@ import { ToolDetailModal } from '../components/Modals/ToolDetailModal';
 import { Chat } from "../components/Chat";
 import { Link } from 'react-router-dom'; // Link component for navigation
 import AgentCard from "../components/AgentCard";
+import { ChatList } from "../components/ChatList";
 
 
 export const ExplorePages: React.FC = () => {
@@ -15,6 +16,21 @@ export const ExplorePages: React.FC = () => {
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [activeChatTool, setActiveChatTool] = useState<AgentItem | null>(null);
     const [isDiscoveryPage, setIsDiscoveryPage] = useState(false); // New state to track whether we're on the discovery page
+
+    // Dummy data and functions for ChatList props (replace with actual data as needed)
+    const dummyChats = [];
+    const dummyConfigs = [];
+    const enterChat = (id: string | null) => {
+        console.log("Enter chat", id);
+    };
+    const deleteChat = (id: string) => {
+        console.log("Delete chat", id);
+    };
+    const enterConfig = (id: string | null) => {
+        console.log("Enter config", id);
+    };
+
+
 
     // Mock functions for stream and stopStream (replace with real ones if needed)
     const startStream = async (message: any, threadId: string, assistantType: string) => {
@@ -92,21 +108,27 @@ export const ExplorePages: React.FC = () => {
             {/* Right Content Area */}
             <div className="w-5/6 p-4">
                 {/* Conditionally render Chat or ToolDetailModal or the Card List */}
-                {activeChatTool ? (
-                    <Chat
-                        startStream={startStream} // Pass startStream to Chat
-                        stopStream={stopStream} // Pass stopStream to Chat
-                        stream={stream} // Pass stream status
-                    />
-                ) : isDiscoveryPage ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {allAgents.map((tool, index) => (
-                            <AgentCard
-                                key={index}
-                                tool={tool}
-                                onClick={() => handleCardClick(tool)} // Open ToolDetailModal
+                {activeChatTool ?(
+                    // When a chat is active, show both the ChatList and Chat components side by side.
+                    <div className="flex">
+                        {/* ChatList (left side of right panel) */}
+                        <div className="w-1/6 p-2 border-r">
+                            <ChatList
+                                chats={dummyChats}
+                                configs={dummyConfigs}
+                                enterChat={enterChat}
+                                deleteChat={deleteChat}
+                                enterConfig={enterConfig}
                             />
-                        ))}
+                        </div>
+                        {/* Chat (right side of right panel) */}
+                        <div className="w-5/6 p-2">
+                            <Chat
+                                startStream={startStream}
+                                stopStream={stopStream}
+                                stream={stream}
+                            />
+                        </div>
                     </div>
                 ) :  (
                     // If no tool is selected for chat and not on the discovery page, show the tool card list
