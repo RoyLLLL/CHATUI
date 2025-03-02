@@ -44,6 +44,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                     <Route element={<DashboardLayout />}>
                         <Route path="/explore" element={<ExplorePages />} />
                         <Route path="/studio" element={<Studio />} />
+                        <Route path="/studio/:botName" element={<Studio />} />
                         <Route path="/tools" element={<AgentPage />} />
                     </Route>
 

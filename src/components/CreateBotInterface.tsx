@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Emoji Selection Modal Component
 // Handles emoji selection and image upload
@@ -110,7 +111,7 @@ const EmojiSelectionModal = ({ initialEmoji, onSelect, onClose, onImageUpload })
 };
 
 // Main CreateBotInterface Component
-const CreateBotInterface = ({ setIsCreating }) => {
+const CreateBotInterface = ({ setIsCreating})  => {
     const [botName, setBotName] = useState('');
     const [description, setDescription] = useState('');
     const [selectedEmoji, setSelectedEmoji] = useState('🤖');
@@ -132,7 +133,7 @@ const CreateBotInterface = ({ setIsCreating }) => {
     const handleImageUpload = (imageData) => {
         setUploadedImage(imageData);
     };
-
+    const navigate = useNavigate();
     // Create bot
     const handleCreate = () => {
         if (selectedEmoji) {
@@ -143,6 +144,7 @@ const CreateBotInterface = ({ setIsCreating }) => {
             alert('Please select an emoji or upload an image.');
         }
         setIsCreating(false);
+        navigate(`/studio/${botName}`);
     };
 
     return (
