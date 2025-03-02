@@ -18,8 +18,6 @@ export const Studio: React.FC = () => {
 
     return (
         <div className="p-4 min-h-screen bg-gray-100">
-            <h2 className="text-2xl font-bold mb-4">Studio</h2>
-
             {botName ? (
                 <StudioChat botName={botName} /> // 通过 URL 控制 StudioChat 显示
             ) : (
