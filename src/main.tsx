@@ -10,7 +10,7 @@ import { NotFound } from "./components/NotFound.tsx";
 import { DashboardLayout } from "./components/DashboardLayout";
 import { ExplorePages } from "./pages/ExplorePages.tsx";
 import { AgentPage } from "./pages/AgentPage";
-import { ChatPage } from "./pages/ChatPage";
+import { Studio } from "./pages/Studio.tsx";
 
 function getCookie(name: string) {
     const cookie = document.cookie.split("; ").find((row) => row.startsWith(`${name}=`));
@@ -43,7 +43,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 
                     <Route element={<DashboardLayout />}>
                         <Route path="/explore" element={<ExplorePages />} />
-                        <Route path="/studio" element={<ChatPage />} />
+                        <Route path="/studio" element={<Studio />} />
                         <Route path="/tools" element={<AgentPage />} />
                     </Route>
 
