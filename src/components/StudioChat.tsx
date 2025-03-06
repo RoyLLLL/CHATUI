@@ -4,9 +4,9 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 
 const getRandomTags = (i, totalTags = 5) => {
     const tags = [];
-    const numTags = (i % 3) + 1; // 每个 item 分配 1 到 3 个标签
+    const numTags = (i % 3) + 1;
     for (let j = 0; j < numTags; j++) {
-        const tagIndex = (i + j) % totalTags + 1; // 从 tag1 到 tag5 循环
+        const tagIndex = (i + j) % totalTags + 1;
         tags.push(`tag${tagIndex}`);
     }
     return tags;
@@ -15,11 +15,11 @@ const getRandomTags = (i, totalTags = 5) => {
 const StudioChat = ({
                         botName = '',
                         selectedModel = null,
-                        selectedTool = null,
+                        selectedTools = [],
                         currentStep,
                         onStepClick = () => {},
                         onSelectModel = () => {},
-                        onSelectTool = () => {},
+                        onSelectTools = () => {},
                         tools = Array.from({ length: 15 }, (_, i) => ({
                             name: `Tool ${i + 1}`,
                             type: `Type ${i % 3 + 1}`,
@@ -37,33 +37,39 @@ const StudioChat = ({
     const [isModelModalOpen, setIsModelModalOpen] = useState(false);
     const [selectedToolTag, setSelectedToolTag] = useState(null);
     const [selectedModelTag, setSelectedModelTag] = useState(null);
+    const [tempSelectedTools, setTempSelectedTools] = useState(selectedTools);
 
-    // Extract unique tags for filtering
     const allToolTags = useMemo(() => [...new Set(tools.flatMap(tool => tool.tags))], [tools]);
     const allModelTags = useMemo(() => [...new Set(models.flatMap(model => model.tags))], [models]);
 
-    // Filter tools and models based on selected tags
     const filteredTools = selectedToolTag ? tools.filter(tool => tool.tags.includes(selectedToolTag)) : tools;
     const filteredModels = selectedModelTag ? models.filter(model => model.tags.includes(selectedModelTag)) : models;
 
-    const handleToolSelect = (tool) => {
-        onSelectTool(tool); // 调用父组件的回调，仅更新 selectedTool
+    const handleToolToggle = (tool) => {
+        setTempSelectedTools(prev => {
+            if (prev.some(t => t.name === tool.name)) {
+                return prev.filter(t => t.name !== tool.name);
+            } else {
+                return [...prev, tool];
+            }
+        });
+    };
+
+    const handleConfirmTools = () => {
+        onSelectTools(tempSelectedTools);
         setIsToolModalOpen(false);
     };
 
     const handleModelSelect = (model) => {
-        onSelectModel(model); // 调用父组件的回调，仅更新 selectedModel
+        onSelectModel(model);
         setIsModelModalOpen(false);
     };
 
     return (
         <div className="flex flex-col h-screen bg-gray-100">
-            {/* Stepper */}
             <div className="p-4">
                 <IconStepper currentStep={currentStep} onStepClick={onStepClick} />
             </div>
-
-            {/* Toolbar */}
             <div className="flex items-center justify-between p-4 bg-white shadow-md">
                 <div className="flex items-center space-x-4">
                     <h1 className="text-lg font-semibold">Orchestrate</h1>
@@ -72,9 +78,9 @@ const StudioChat = ({
                             Model: {selectedModel.name}
                         </div>
                     )}
-                    {selectedTool && (
+                    {selectedTools.length > 0 && (
                         <div className="text-sm bg-gray-100 px-3 py-1 rounded-full">
-                            Tool: {selectedTool.name}
+                            Tools: {selectedTools.map(tool => tool.name).join(', ')}
                         </div>
                     )}
                 </div>
@@ -89,15 +95,13 @@ const StudioChat = ({
                         className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors"
                         onClick={() => setIsToolModalOpen(true)}
                     >
-                        {selectedTool ? `Tool: ${selectedTool.name}` : 'Select Tool'}
+                        {selectedTools.length > 0 ? `Tools: ${selectedTools.map(t => t.name).join(', ')}` : 'Select Tools'}
                     </button>
                     <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
                         Publish
                     </button>
                 </div>
             </div>
-
-            {/* Main Content */}
             <div className="flex flex-grow">
                 <div className="w-1/2 p-6 bg-white shadow-md border-r">
                     <h2 className="text-md font-semibold mb-2">Instructions</h2>
@@ -142,7 +146,7 @@ const StudioChat = ({
             {isToolModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
-                        <h2 className="text-lg font-semibold mb-4">Select Tool</h2>
+                        <h2 className="text-lg font-semibold mb-4">Select Tools</h2>
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-2">Filter by Tag</label>
                             <select
@@ -162,13 +166,20 @@ const StudioChat = ({
                             {filteredTools.map((tool, index) => (
                                 <div
                                     key={index}
-                                    className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow p-4 cursor-pointer"
-                                    onClick={() => handleToolSelect(tool)}
+                                    className={`bg-white rounded-lg shadow-md p-4 ${
+                                        tempSelectedTools.some(t => t.name === tool.name) ? 'border-2 border-blue-500' : ''
+                                    }`}
                                 >
-                                    <div className="mb-4">
+                                    <div className="flex items-center mb-4">
+                                        <input
+                                            type="checkbox"
+                                            checked={tempSelectedTools.some(t => t.name === tool.name)}
+                                            onChange={() => handleToolToggle(tool)}
+                                            className="mr-2"
+                                        />
                                         <h3 className="text-lg font-semibold">{tool.name}</h3>
-                                        <p className="text-sm text-gray-500">{tool.type}</p>
                                     </div>
+                                    <p className="text-sm text-gray-500">{tool.type}</p>
                                     {tool.description && (
                                         <p className="text-gray-700 mb-2">{tool.description}</p>
                                     )}
@@ -185,12 +196,20 @@ const StudioChat = ({
                                 </div>
                             ))}
                         </div>
-                        <button
-                            className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                            onClick={() => setIsToolModalOpen(false)}
-                        >
-                            Close
-                        </button>
+                        <div className="mt-4 flex justify-end space-x-2">
+                            <button
+                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                                onClick={() => setIsToolModalOpen(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                                onClick={handleConfirmTools}
+                            >
+                                Confirm
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

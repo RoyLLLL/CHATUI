@@ -15,40 +15,34 @@ export const Studio = () => {
     const [isCreating, setIsCreating] = useState(false);
     const [creationStep, setCreationStep] = useState(0);
     const [selectedModel, setSelectedModel] = useState(null);
-    const [selectedTool, setSelectedTool] = useState(null);
+    const [selectedTools, setSelectedTools] = useState([]);
 
-    // 处理从空白创建
     const handleCreateFromBlank = () => {
         setIsCreating(true);
         setCreationStep(0);
     };
 
-    // 处理模型选择（不改变 creationStep）
     const handleModelSelect = (model) => {
         setSelectedModel(model);
-        // 如果当前是 step 0，则进入 step 1
         if (creationStep === 0) {
             setCreationStep(1);
         }
     };
 
-    // 处理工具选择（不改变 creationStep）
-    const handleToolSelect = (tool) => {
-        setSelectedTool(tool);
-        // 如果当前是 step 1，则进入 step 2
-        if (creationStep === 1) {
+    const handleToolSelect = (tools) => {
+        setSelectedTools(tools);
+        if (creationStep === 1 && tools.length > 0) {
             setCreationStep(2);
         }
     };
 
-    // 处理进度条点击
     const handleStepClick = (index) => {
         if (index === 0) {
-            setCreationStep(0); // 切换到模型选择
+            setCreationStep(0);
         } else if (index === 1 && selectedModel) {
-            setCreationStep(1); // 切换到工具选择
-        } else if (index === 2 && selectedModel && selectedTool) {
-            setCreationStep(2); // 切换到预览
+            setCreationStep(1);
+        } else if (index === 2 && selectedModel && selectedTools.length > 0) {
+            setCreationStep(2);
         }
     };
 
@@ -70,7 +64,7 @@ export const Studio = () => {
                             {creationStep === 0 && (
                                 <ModelSelectionModal
                                     open={true}
-                                    onClose={() => setIsCreating(false)} // 关闭时退出创建模式
+                                    onClose={() => setIsCreating(false)}
                                     currentStep={creationStep}
                                     onStepClick={handleStepClick}
                                     onSelect={handleModelSelect}
@@ -79,21 +73,22 @@ export const Studio = () => {
                             {creationStep === 1 && (
                                 <ToolSelectionModal
                                     open={true}
-                                    onClose={() => setCreationStep(0)} // 返回模型选择
+                                    onClose={() => setCreationStep(0)}
                                     currentStep={creationStep}
                                     onStepClick={handleStepClick}
                                     onSelect={handleToolSelect}
+                                    selectedTools={selectedTools}
                                 />
                             )}
                             {creationStep === 2 && (
                                 <StudioChat
                                     botName="new-bot"
                                     selectedModel={selectedModel}
-                                    selectedTool={selectedTool}
+                                    selectedTools={selectedTools}
                                     currentStep={creationStep}
                                     onStepClick={handleStepClick}
-                                    onSelectModel={handleModelSelect} // 传递模型选择回调
-                                    onSelectTool={handleToolSelect}   // 传递工具选择回调
+                                    onSelectModel={handleModelSelect}
+                                    onSelectTools={handleToolSelect}
                                 />
                             )}
                         </>

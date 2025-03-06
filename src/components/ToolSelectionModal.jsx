@@ -2,25 +2,34 @@ import React, { useState, useMemo } from "react";
 import { Modal, Box, Typography, Card, CardContent } from "@mui/joy";
 import IconStepper from "./IconStepper";
 
-const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect }) => {
+const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect, selectedTools = [] }) => {
     const [selectedTag, setSelectedTag] = useState(null);
+    const [tempSelectedTools, setTempSelectedTools] = useState(selectedTools);
 
-    // Generate 10 tools with sample data
     const tools = Array.from({ length: 10 }, (_, i) => ({
         name: `Tool ${i + 1}`,
         description: `This is Tool ${i + 1}`,
-        type: `Type ${String.fromCharCode(88 + (i % 3))}`, // Types X, Y, Z
-        tags: [
-            `tag${(i % 3) + 1}`, // tag1, tag2, tag3
-            `tag${(i % 2) + 4}`, // tag4, tag5
-        ],
+        type: `Type ${String.fromCharCode(88 + (i % 3))}`,
+        tags: [`tag${(i % 3) + 1}`, `tag${(i % 2) + 4}`],
     }));
 
-    // Extract unique tags
-    const allTags = useMemo(() => [...new Set(tools.flatMap(tool => tool.tags || []))], []);
-
-    // Filter tools by selected tag
+    const allTags = useMemo(() => [...new Set(tools.flatMap(tool => tool.tags || []))], [tools]);
     const filteredTools = selectedTag ? tools.filter(tool => tool.tags?.includes(selectedTag)) : tools;
+
+    const handleToolToggle = (tool) => {
+        setTempSelectedTools(prev => {
+            if (prev.some(t => t.name === tool.name)) {
+                return prev.filter(t => t.name !== tool.name);
+            } else {
+                return [...prev, tool];
+            }
+        });
+    };
+
+    const handleConfirm = () => {
+        onSelect(tempSelectedTools);
+        // Do not call onClose here
+    };
 
     return (
         <Modal open={open} onClose={onClose}>
@@ -31,17 +40,16 @@ const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect 
                     borderRadius: 2,
                     boxShadow: 2,
                     minWidth: 600,
-                    maxHeight: "80vh", // Limit height for scrolling
-                    overflowY: "auto", // Enable vertical scrolling
+                    maxHeight: "80vh",
+                    overflowY: "auto",
                     margin: "auto",
                     mt: 10,
                 }}
             >
                 <IconStepper currentStep={currentStep} onStepClick={onStepClick} />
                 <Typography level="h6" sx={{ mt: 2, mb: 2 }}>
-                    Select Tool
+                    Select Tools
                 </Typography>
-                {/* Tag filter dropdown */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium mb-2">Filter by Tag</label>
                     <select
@@ -68,11 +76,21 @@ const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect 
                         <Card
                             key={index}
                             variant="outlined"
-                            onClick={() => onSelect(tool)}
-                            sx={{ cursor: "pointer", "&:hover": { boxShadow: 3 } }}
+                            sx={{
+                                "&:hover": { boxShadow: 3 },
+                                border: tempSelectedTools.some(t => t.name === tool.name) ? '2px solid blue' : 'none',
+                            }}
                         >
                             <CardContent>
-                                <Typography level="h6">{tool.name}</Typography>
+                                <div className="flex items-center mb-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={tempSelectedTools.some(t => t.name === tool.name)}
+                                        onChange={() => handleToolToggle(tool)}
+                                        className="mr-2"
+                                    />
+                                    <Typography level="h6">{tool.name}</Typography>
+                                </div>
                                 <Typography level="body2" textColor="neutral">
                                     {tool.type}
                                 </Typography>
@@ -81,7 +99,6 @@ const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect 
                                         {tool.description}
                                     </Typography>
                                 )}
-                                {/* Display tags */}
                                 {tool.tags && (
                                     <div className="flex flex-wrap gap-1 mt-2">
                                         {tool.tags.map((tag, i) => (
@@ -98,6 +115,20 @@ const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect 
                         </Card>
                     ))}
                 </Box>
+                <div className="mt-4 flex justify-end space-x-2">
+                    <button
+                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                        onClick={onClose}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                        onClick={handleConfirm}
+                    >
+                        Confirm
+                    </button>
+                </div>
             </Box>
         </Modal>
     );
