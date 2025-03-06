@@ -5,41 +5,35 @@ import ModelSelectionModal from "../components/ModelSelectionModal";
 import ToolSelectionModal from "../components/ToolSelectionModal";
 
 export const Studio = () => {
-    const { botName } = useParams(); // Get botName from URL
-
+    const { botName } = useParams();
     const userBots = [
         { id: 1, name: 'test ChatBot', description: 'test' },
         { id: 2, name: 'test2 ChatBot', description: 'test2' },
         { id: 3, name: 'MyTestBot ChatBot', description: 'MyTestBot' },
     ];
 
-    // State for creation process
     const [isCreating, setIsCreating] = useState(false);
-    const [creationStep, setCreationStep] = useState(0); // Steps: 0 (initial), 1 (model), 2 (tool), 3 (preview)
+    const [creationStep, setCreationStep] = useState(0);
     const [selectedModel, setSelectedModel] = useState(null);
     const [selectedTool, setSelectedTool] = useState(null);
 
-    // Start creation process
     const handleCreateFromBlank = () => {
         setIsCreating(true);
         setCreationStep(0);
     };
 
-    // Advance to tool selection after selecting a model
     const handleModelSelect = (model) => {
         setSelectedModel(model);
         setCreationStep(1);
     };
 
-    // Advance to preview after selecting a tool
     const handleToolSelect = (tool) => {
         setSelectedTool(tool);
         setCreationStep(2);
     };
 
-    // Handle step navigation (including backtracking)
     const handleStepClick = (index) => {
-        if (index < creationStep) { // Only allow backtracking to completed steps
+        if (index < creationStep) {
             setCreationStep(index);
         }
     };
@@ -47,12 +41,10 @@ export const Studio = () => {
     return (
         <div className="p-4 min-h-screen bg-gray-100">
             {botName ? (
-                // Render StudioChat directly if botName is in URL
                 <StudioChat botName={botName} />
             ) : (
                 <>
                     {!isCreating ? (
-                        // Show bot list and creation card
                         <div className="flex space-x-4">
                             <CreateAppCard setIsCreating={handleCreateFromBlank} />
                             {userBots.map((bot) => (
@@ -60,11 +52,11 @@ export const Studio = () => {
                             ))}
                         </div>
                     ) : (
-                        // Creation process
                         <>
                             {creationStep === 0 && (
                                 <ModelSelectionModal
                                     open={true}
+                                    onClose={() => setCreationStep(-1)}
                                     currentStep={creationStep}
                                     onStepClick={handleStepClick}
                                     onSelect={handleModelSelect}
@@ -73,6 +65,7 @@ export const Studio = () => {
                             {creationStep === 1 && (
                                 <ToolSelectionModal
                                     open={true}
+                                    onClose={() => setCreationStep(0)}
                                     currentStep={creationStep}
                                     onStepClick={handleStepClick}
                                     onSelect={handleToolSelect}
@@ -95,7 +88,6 @@ export const Studio = () => {
     );
 };
 
-// CreateAppCard component
 const CreateAppCard = ({ setIsCreating }) => {
     return (
         <div className="p-4 border rounded-lg shadow-md bg-white w-64 h-48 overflow-hidden">
@@ -103,7 +95,7 @@ const CreateAppCard = ({ setIsCreating }) => {
             <ul className="space-y-2">
                 <li
                     className="cursor-pointer text-black underline hover:text-gray-900"
-                    onClick={setIsCreating}
+                    onClick={() => setIsCreating(true)}
                 >
                     Create from Blank
                 </li>
@@ -112,8 +104,7 @@ const CreateAppCard = ({ setIsCreating }) => {
     );
 };
 
-// BotCard component
-const BotCard = ({ name, description }) => {
+const BotCard = ({ name = '', description = '' }) => {
     return (
         <div className="p-4 border rounded-lg shadow-md bg-white w-64 h-48 overflow-hidden">
             <div className="flex items-center mb-2">

@@ -1,16 +1,29 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { Modal, Box, Typography, Card, CardContent } from "@mui/joy";
 import IconStepper from "./IconStepper";
 
-const ToolSelectionModal = ({ open, currentStep, onStepClick, onSelect }) => {
-    const tools = [
-        { name: "Tool X", description: "这是 Tool X", type: "工具类型 X" },
-        { name: "Tool Y", description: "这是 Tool Y", type: "工具类型 Y" },
-        { name: "Tool Z", description: "这是 Tool Z", type: "工具类型 Z" },
-    ];
+const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect }) => {
+    const [selectedTag, setSelectedTag] = useState(null);
+
+    // Generate 10 tools with sample data
+    const tools = Array.from({ length: 10 }, (_, i) => ({
+        name: `Tool ${i + 1}`,
+        description: `This is Tool ${i + 1}`,
+        type: `Type ${String.fromCharCode(88 + (i % 3))}`, // Types X, Y, Z
+        tags: [
+            `tag${(i % 3) + 1}`, // tag1, tag2, tag3
+            `tag${(i % 2) + 4}`, // tag4, tag5
+        ],
+    }));
+
+    // Extract unique tags
+    const allTags = useMemo(() => [...new Set(tools.flatMap(tool => tool.tags || []))], []);
+
+    // Filter tools by selected tag
+    const filteredTools = selectedTag ? tools.filter(tool => tool.tags?.includes(selectedTag)) : tools;
 
     return (
-        <Modal open={open} onClose={() => {}}>
+        <Modal open={open} onClose={onClose}>
             <Box
                 sx={{
                     bgcolor: "background.body",
@@ -18,14 +31,32 @@ const ToolSelectionModal = ({ open, currentStep, onStepClick, onSelect }) => {
                     borderRadius: 2,
                     boxShadow: 2,
                     minWidth: 600,
+                    maxHeight: "80vh", // Limit height for scrolling
+                    overflowY: "auto", // Enable vertical scrolling
                     margin: "auto",
                     mt: 10,
                 }}
             >
                 <IconStepper currentStep={currentStep} onStepClick={onStepClick} />
                 <Typography level="h6" sx={{ mt: 2, mb: 2 }}>
-                    选择工具
+                    Select Tool
                 </Typography>
+                {/* Tag filter dropdown */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium mb-2">Filter by Tag</label>
+                    <select
+                        className="w-full border rounded p-2"
+                        value={selectedTag || ""}
+                        onChange={(e) => setSelectedTag(e.target.value || null)}
+                    >
+                        <option value="">All Tags</option>
+                        {allTags.map((tag) => (
+                            <option key={tag} value={tag}>
+                                {tag}
+                            </option>
+                        ))}
+                    </select>
+                </div>
                 <Box
                     sx={{
                         display: "grid",
@@ -33,15 +64,12 @@ const ToolSelectionModal = ({ open, currentStep, onStepClick, onSelect }) => {
                         gap: 2,
                     }}
                 >
-                    {tools.map((tool, index) => (
+                    {filteredTools.map((tool, index) => (
                         <Card
                             key={index}
                             variant="outlined"
                             onClick={() => onSelect(tool)}
-                            sx={{
-                                cursor: "pointer",
-                                "&:hover": { boxShadow: 3 },
-                            }}
+                            sx={{ cursor: "pointer", "&:hover": { boxShadow: 3 } }}
                         >
                             <CardContent>
                                 <Typography level="h6">{tool.name}</Typography>
@@ -52,6 +80,19 @@ const ToolSelectionModal = ({ open, currentStep, onStepClick, onSelect }) => {
                                     <Typography level="body2" textColor="text.secondary">
                                         {tool.description}
                                     </Typography>
+                                )}
+                                {/* Display tags */}
+                                {tool.tags && (
+                                    <div className="flex flex-wrap gap-1 mt-2">
+                                        {tool.tags.map((tag, i) => (
+                                            <span
+                                                key={i}
+                                                className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
                                 )}
                             </CardContent>
                         </Card>

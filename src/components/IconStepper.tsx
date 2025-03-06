@@ -22,29 +22,19 @@ const IconStepper = ({ currentStep, onStepClick = () => {} }) => {
                 width: '100%',
                 '--StepIndicator-size': '3rem',
                 '--Step-connectorInset': '0px',
-                [`& .${stepIndicatorClasses.root}`]: {
-                    borderWidth: 4,
-                },
-                [`& .${stepClasses.root}::after`]: {
-                    height: 4,
-                },
+                [`& .${stepIndicatorClasses.root}`]: { borderWidth: 4 },
+                [`& .${stepClasses.root}::after`]: { height: 4 },
                 [`& .${stepClasses.completed}`]: {
                     [`& .${stepIndicatorClasses.root}`]: {
                         borderColor: 'primary.300',
                         color: 'primary.300',
                     },
-                    '&::after': {
-                        bgcolor: 'primary.300',
-                    },
+                    '&::after': { bgcolor: 'primary.300' },
                 },
                 [`& .${stepClasses.active}`]: {
-                    [`& .${stepIndicatorClasses.root}`]: {
-                        borderColor: 'currentColor',
-                    },
+                    [`& .${stepIndicatorClasses.root}`]: { borderColor: 'currentColor' },
                 },
-                [`& .${stepClasses.disabled} *`]: {
-                    color: 'neutral.outlinedDisabledColor',
-                },
+                [`& .${stepClasses.disabled} *`]: { color: 'neutral.outlinedDisabledColor' },
             }}
         >
             {steps.map((step, index) => {
@@ -55,12 +45,8 @@ const IconStepper = ({ currentStep, onStepClick = () => {} }) => {
                         key={index}
                         completed={isCompleted}
                         active={isActive}
-                        onClick={() => {
-                            if (isCompleted) {
-                                onStepClick(index); // 仅在步骤已完成时触发回退
-                            }
-                        }}
-                        sx={{ cursor: isCompleted ? 'pointer' : 'default' }} // 已完成步骤显示指针，未完成显示默认
+                        onClick={() => isCompleted && onStepClick(index)}
+                        sx={{ cursor: isCompleted ? 'pointer' : 'default' }}
                         indicator={
                             <StepIndicator variant={isActive ? 'solid' : 'outlined'} color="primary">
                                 {isCompleted ? <CheckCircleRoundedIcon /> : step.icon}

@@ -1,19 +1,81 @@
-import React from "react";
-import IconStepper from "./IconStepper"; // 根据实际路径引入
+import React, { useState, useMemo } from "react";
+import IconStepper from "./IconStepper";
 import { PlusIcon } from "@heroicons/react/24/outline";
 
-const StudioChat = ({ botName, selectedModel, selectedTool, onStepClick }) => {
+const StudioChat = ({
+                        botName = '',
+                        selectedModel = null,
+                        selectedTool = null,
+                        currentStep,
+                        onStepClick = () => {},
+                        tools = Array.from({ length: 15 }, (_, i) => ({
+                            name: `Tool ${i + 1}`,
+                            type: `Type ${i % 3 + 1}`,
+                            description: `Description for Tool ${i + 1}`,
+                            tags: [`tag${i % 2 + 1}`, `tag${(i + 1) % 2 + 1}`],
+                        })),
+                        models = Array.from({ length: 15 }, (_, i) => ({
+                            name: `Model ${i + 1}`,
+                            type: `Type ${i % 3 + 1}`,
+                            description: `Description for Model ${i + 1}`,
+                            tags: [`tag${i % 2 + 1}`, `tag${(i + 1) % 2 + 1}`],
+                        })),
+                        onSelectTool = () => {},
+                        onSelectModel = () => {},
+                    }) => {
+    const [isToolModalOpen, setIsToolModalOpen] = useState(false);
+    const [isModelModalOpen, setIsModelModalOpen] = useState(false);
+    const [selectedToolTag, setSelectedToolTag] = useState(null);
+    const [selectedModelTag, setSelectedModelTag] = useState(null);
+
+    // Extract unique tags for filtering
+    const allToolTags = useMemo(() => [...new Set(tools.flatMap(tool => tool.tags))], [tools]);
+    const allModelTags = useMemo(() => [...new Set(models.flatMap(model => model.tags))], [models]);
+
+    // Filter tools and models based on selected tags
+    const filteredTools = selectedToolTag ? tools.filter(tool => tool.tags.includes(selectedToolTag)) : tools;
+    const filteredModels = selectedModelTag ? models.filter(model => model.tags.includes(selectedModelTag)) : models;
+
+    const handleToolSelect = (tool) => {
+        onSelectTool(tool);
+        setIsToolModalOpen(false);
+    };
+
+    const handleModelSelect = (model) => {
+        onSelectModel(model);
+        setIsModelModalOpen(false);
+    };
+
     return (
         <div className="flex flex-col h-screen bg-gray-100">
+            {/* Stepper */}
             <div className="p-4">
-                <IconStepper currentStep={2} onStepClick={onStepClick} />
+                <IconStepper currentStep={currentStep} onStepClick={onStepClick} />
             </div>
+
+            {/* Toolbar */}
             <div className="flex items-center justify-between p-4 bg-white shadow-md">
                 <h1 className="text-lg font-semibold">Orchestrate</h1>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                    Publish
-                </button>
+                <div className="space-x-2">
+                    <button
+                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                        onClick={() => setIsModelModalOpen(true)}
+                    >
+                        Select Model
+                    </button>
+                    <button
+                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                        onClick={() => setIsToolModalOpen(true)}
+                    >
+                        Select Tool
+                    </button>
+                    <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        Publish
+                    </button>
+                </div>
             </div>
+
+            {/* Main Content */}
             <div className="flex flex-grow">
                 <div className="w-1/2 p-6 bg-white shadow-md border-r">
                     <h2 className="text-md font-semibold mb-2">Instructions</h2>
@@ -53,6 +115,120 @@ const StudioChat = ({ botName, selectedModel, selectedTool, onStepClick }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Tool Select Modal */}
+            {isToolModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
+                        <h2 className="text-lg font-semibold mb-4">Select Tool</h2>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium mb-2">Filter by Tag</label>
+                            <select
+                                className="w-full border rounded p-2"
+                                value={selectedToolTag || ''}
+                                onChange={(e) => setSelectedToolTag(e.target.value || null)}
+                            >
+                                <option value="">All Tags</option>
+                                {allToolTags.map((tag) => (
+                                    <option key={tag} value={tag}>
+                                        {tag}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {filteredTools.map((tool, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow p-4 cursor-pointer"
+                                    onClick={() => handleToolSelect(tool)}
+                                >
+                                    <div className="mb-4">
+                                        <h3 className="text-lg font-semibold">{tool.name}</h3>
+                                        <p className="text-sm text-gray-500">{tool.type}</p>
+                                    </div>
+                                    {tool.description && (
+                                        <p className="text-gray-700 mb-2">{tool.description}</p>
+                                    )}
+                                    <div className="flex flex-wrap gap-2">
+                                        {tool.tags.map((tag, i) => (
+                                            <span
+                                                key={i}
+                                                className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <button
+                            className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                            onClick={() => setIsToolModalOpen(false)}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Model Select Modal */}
+            {isModelModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
+                        <h2 className="text-lg font-semibold mb-4">Select Model</h2>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium mb-2">Filter by Tag</label>
+                            <select
+                                className="w-full border rounded p-2"
+                                value={selectedModelTag || ''}
+                                onChange={(e) => setSelectedModelTag(e.target.value || null)}
+                            >
+                                <option value="">All Tags</option>
+                                {allModelTags.map((tag) => (
+                                    <option key={tag} value={tag}>
+                                        {tag}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {filteredModels.map((model, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow p-4 cursor-pointer"
+                                    onClick={() => handleModelSelect(model)}
+                                >
+                                    <div className="mb-4">
+                                        <h3 className="text-lg font-semibold">{model.name}</h3>
+                                        <p className="text-sm text-gray-500">{model.type}</p>
+                                    </div>
+                                    {model.description && (
+                                        <p className="text-gray-700 mb-2">{model.description}</p>
+                                    )}
+                                    <div className="flex flex-wrap gap-2">
+                                        {model.tags.map((tag, i) => (
+                                            <span
+                                                key={i}
+                                                className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <button
+                            className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                            onClick={() => setIsModelModalOpen(false)}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
