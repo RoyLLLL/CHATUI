@@ -5,3 +5,15 @@
 5. [main.tsx](src/main.tsx)
 6. [Modals](src/components/Modals)
 7. src/components/AgentCard.tsx
+----------------------------
+1. studio.jsx
+2. package.json
+3.  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.7",
+    "@mui/joy": "^5.0.0-beta.51",
+4. IconStepper.tsx
+5. ModelSelectionModal.jsx
+6. StudioChat.tsx
+7. ToolSelectionModal.jsx
