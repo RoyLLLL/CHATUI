@@ -2,26 +2,36 @@ import React, { useState, useMemo } from "react";
 import IconStepper from "./IconStepper";
 import { PlusIcon } from "@heroicons/react/24/outline";
 
+const getRandomTags = (i, totalTags = 5) => {
+    const tags = [];
+    const numTags = (i % 3) + 1; // 每个 item 分配 1 到 3 个标签
+    for (let j = 0; j < numTags; j++) {
+        const tagIndex = (i + j) % totalTags + 1; // 从 tag1 到 tag5 循环
+        tags.push(`tag${tagIndex}`);
+    }
+    return tags;
+};
+
 const StudioChat = ({
                         botName = '',
                         selectedModel = null,
                         selectedTool = null,
                         currentStep,
                         onStepClick = () => {},
+                        onSelectModel = () => {},
+                        onSelectTool = () => {},
                         tools = Array.from({ length: 15 }, (_, i) => ({
                             name: `Tool ${i + 1}`,
                             type: `Type ${i % 3 + 1}`,
                             description: `Description for Tool ${i + 1}`,
-                            tags: [`tag${i % 2 + 1}`, `tag${(i + 1) % 2 + 1}`],
+                            tags: getRandomTags(i),
                         })),
                         models = Array.from({ length: 15 }, (_, i) => ({
                             name: `Model ${i + 1}`,
                             type: `Type ${i % 3 + 1}`,
                             description: `Description for Model ${i + 1}`,
-                            tags: [`tag${i % 2 + 1}`, `tag${(i + 1) % 2 + 1}`],
+                            tags: getRandomTags(i),
                         })),
-                        onSelectTool = () => {},
-                        onSelectModel = () => {},
                     }) => {
     const [isToolModalOpen, setIsToolModalOpen] = useState(false);
     const [isModelModalOpen, setIsModelModalOpen] = useState(false);
@@ -37,12 +47,12 @@ const StudioChat = ({
     const filteredModels = selectedModelTag ? models.filter(model => model.tags.includes(selectedModelTag)) : models;
 
     const handleToolSelect = (tool) => {
-        onSelectTool(tool);
+        onSelectTool(tool); // 调用父组件的回调，仅更新 selectedTool
         setIsToolModalOpen(false);
     };
 
     const handleModelSelect = (model) => {
-        onSelectModel(model);
+        onSelectModel(model); // 调用父组件的回调，仅更新 selectedModel
         setIsModelModalOpen(false);
     };
 
@@ -55,19 +65,31 @@ const StudioChat = ({
 
             {/* Toolbar */}
             <div className="flex items-center justify-between p-4 bg-white shadow-md">
-                <h1 className="text-lg font-semibold">Orchestrate</h1>
+                <div className="flex items-center space-x-4">
+                    <h1 className="text-lg font-semibold">Orchestrate</h1>
+                    {selectedModel && (
+                        <div className="text-sm bg-gray-100 px-3 py-1 rounded-full">
+                            Model: {selectedModel.name}
+                        </div>
+                    )}
+                    {selectedTool && (
+                        <div className="text-sm bg-gray-100 px-3 py-1 rounded-full">
+                            Tool: {selectedTool.name}
+                        </div>
+                    )}
+                </div>
                 <div className="space-x-2">
                     <button
-                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                        className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors"
                         onClick={() => setIsModelModalOpen(true)}
                     >
-                        Select Model
+                        {selectedModel ? `Model: ${selectedModel.name}` : 'Select Model'}
                     </button>
                     <button
-                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                        className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors"
                         onClick={() => setIsToolModalOpen(true)}
                     >
-                        Select Tool
+                        {selectedTool ? `Tool: ${selectedTool.name}` : 'Select Tool'}
                     </button>
                     <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
                         Publish
@@ -116,7 +138,7 @@ const StudioChat = ({
                 </div>
             </div>
 
-            {/* Tool Select Modal */}
+            {/* Tool Selection Modal */}
             {isToolModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
@@ -173,7 +195,7 @@ const StudioChat = ({
                 </div>
             )}
 
-            {/* Model Select Modal */}
+            {/* Model Selection Modal */}
             {isModelModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
