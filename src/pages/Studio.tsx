@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import StudioChat from "../components/StudioChat";
 import ModelSelectionModal from "../components/ModelSelectionModal";
 import ToolSelectionModal from "../components/ToolSelectionModal";
@@ -7,10 +7,32 @@ import ToolSelectionModal from "../components/ToolSelectionModal";
 export const Studio = () => {
     const { botName } = useParams();
     const userBots = [
-        { id: 1, name: 'test ChatBot', description: 'test' },
-        { id: 2, name: 'test2 ChatBot', description: 'test2' },
-        { id: 3, name: 'MyTestBot ChatBot', description: 'MyTestBot' },
+        {
+            id: 1,
+            name: 'test ChatBot',
+            description: 'test',
+            model: { name: 'Model 1', type: 'Type A', description: 'This is Model 1', tags: ['tag1'] },
+            tools: [
+                { name: 'Tool 1', type: 'Type X', description: 'This is Tool 1', tags: ['tag1'] },
+                { name: 'Tool 2', type: 'Type Y', description: 'This is Tool 2', tags: ['tag2'] },
+            ],
+        },
+        {
+            id: 2,
+            name: 'test2 ChatBot',
+            description: 'test2',
+            model: { name: 'Model 2', type: 'Type B', description: 'This is Model 2', tags: ['tag2'] },
+            tools: [{ name: 'Tool 3', type: 'Type Z', description: 'This is Tool 3', tags: ['tag3'] }],
+        },
+        {
+            id: 3,
+            name: 'MyTestBot ChatBot',
+            description: 'MyTestBot',
+            model: { name: 'Model 3', type: 'Type C', description: 'This is Model 3', tags: ['tag3'] },
+            tools: [{ name: 'Tool 4', type: 'Type X', description: 'This is Tool 4', tags: ['tag4'] }],
+        },
     ];
+
 
     const [isCreating, setIsCreating] = useState(false);
     const [creationStep, setCreationStep] = useState(0);
@@ -56,7 +78,7 @@ export const Studio = () => {
                         <div className="flex space-x-4">
                             <CreateAppCard setIsCreating={handleCreateFromBlank} />
                             {userBots.map((bot) => (
-                                <BotCard key={bot.id} name={bot.name} description={bot.description} />
+                                <BotCard key={bot.id} id={bot.id} name={bot.name} description={bot.description} model={bot.model} tools={bot.tools}/>
                             ))}
                         </div>
                     ) : (
@@ -115,9 +137,18 @@ const CreateAppCard = ({ setIsCreating }) => {
     );
 };
 
-const BotCard = ({ name = '', description = '' }) => {
+const BotCard = ({ id, name = '', description = '', model, tools }) => {
+    const navigate = useNavigate();
+
+    const handleBotClick = () => {
+        navigate(`/studio/edit/${id}`, { state: { bot: { id, name, description, model, tools } } });
+    };
+
     return (
-        <div className="p-4 border rounded-lg shadow-md bg-white w-64 h-48 overflow-hidden">
+        <div
+            className="p-4 border rounded-lg shadow-md bg-white w-64 h-48 overflow-hidden cursor-pointer"
+            onClick={handleBotClick}
+        >
             <div className="flex items-center mb-2">
                 <div className="w-8 h-8 bg-orange-300 rounded-full mr-2"></div>
                 <h3 className="text-lg font-bold">{name}</h3>

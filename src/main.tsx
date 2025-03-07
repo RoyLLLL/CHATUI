@@ -11,6 +11,7 @@ import { DashboardLayout } from "./components/DashboardLayout";
 import { ExplorePages } from "./pages/ExplorePages.tsx";
 import { AgentPage } from "./pages/AgentPage";
 import { Studio } from "./pages/Studio.tsx";
+import StudioEdit from "./pages/StudioEdit.tsx";
 
 function getCookie(name: string) {
     const cookie = document.cookie.split("; ").find((row) => row.startsWith(`${name}=`));
@@ -45,6 +46,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                         <Route path="/explore" element={<ExplorePages />} />
                         <Route path="/studio" element={<Studio />} />
                         <Route path="/studio/:botName" element={<Studio />} />
+                        <Route path="/studio/edit/:botId" element={<StudioEdit />} />
                         <Route path="/tools" element={<AgentPage />} />
                     </Route>
 
