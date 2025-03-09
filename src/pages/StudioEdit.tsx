@@ -3,14 +3,13 @@ import { useParams, useLocation } from 'react-router-dom';
 import StudioPreview from "../components/StudioPreview.tsx";
 import ModelSelectionModal from "../components/ModelSelectionModal";
 import ToolSelectionModal from "../components/ToolSelectionModal";
-
 import { Model, Tool } from '../components/types';
 
-// Define the Bot interface for bot data structure
 interface Bot {
     id: number;
     name: string;
     description: string;
+    avatar: string;
     model: Model;
     tools: Tool[];
 }
@@ -20,38 +19,32 @@ export const StudioEdit = () => {
     const location = useLocation();
     const botFromState = location.state?.bot as Bot | undefined;
 
-    // If no bot data is provided, show an error message
     if (!botFromState) {
         return <div className="p-4 min-h-screen bg-gray-100">Invalid access: bot data not found</div>;
     }
 
-    const [currentStep, setCurrentStep] = useState(2); // Default to Step 2 (Preview mode)
+    const [currentStep, setCurrentStep] = useState(2);
     const [selectedModel, setSelectedModel] = useState<Model | null>(botFromState.model);
     const [selectedTools, setSelectedTools] = useState<Tool[]>(botFromState.tools);
 
-    // Sync state with botFromState when it changes
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
         if (botFromState) {
-            console.log('botFromState:', botFromState); // Debug: confirm data transfer
+            console.log('botFromState:', botFromState);
             setSelectedModel(botFromState.model);
             setSelectedTools(botFromState.tools);
         }
     }, [botFromState]);
 
-    // Handle model selection and return to preview mode
     const handleModelSelect = (model: Model) => {
         setSelectedModel(model);
         setCurrentStep(2);
     };
 
-    // Handle tool selection and return to preview mode
     const handleToolSelect = (tools: Tool[]) => {
         setSelectedTools(tools);
         setCurrentStep(2);
     };
 
-    // Handle step navigation click
     const handleStepClick = (index: number) => {
         if (index === 0) {
             setCurrentStep(0);
@@ -87,6 +80,8 @@ export const StudioEdit = () => {
                 <StudioPreview
                     botName={botFromState.name}
                     botId={botId}
+                    botDescription={botFromState.description}
+                    botAvatar={botFromState.avatar}
                     selectedModel={selectedModel}
                     selectedTools={selectedTools}
                     currentStep={currentStep}

@@ -7,6 +7,8 @@ import { Model, Tool } from './types';
 interface StudioPreviewProps {
     botName?: string;
     botId?: string;
+    botDescription?: string;  // 新增 bot 描述
+    botAvatar?: string;       // 新增 bot 头像（emoji 或图像 URL）
     selectedModel?: Model | null;
     selectedTools?: Tool[];
     currentStep: number;
@@ -31,6 +33,8 @@ const getRandomTags = (i: number, totalTags = 5): string[] => {
 const StudioPreview: React.FC<StudioPreviewProps> = ({
                                                          botName = '',
                                                          botId = '',
+                                                         botDescription = '',
+                                                         botAvatar = '',
                                                          selectedModel = null,
                                                          selectedTools = [],
                                                          currentStep,
@@ -92,17 +96,23 @@ const StudioPreview: React.FC<StudioPreviewProps> = ({
             </div>
             <div className="w-2/3 flex items-center justify-between p-4 bg-white shadow-md">
                 <div className="flex items-center space-x-4">
-                    <h1 className="text-lg font-semibold">{botName}</h1>
-                    {selectedModel && (
-                        <div className="text-sm bg-gray-100 px-3 py-1 rounded-full">
-                            Model: {selectedModel.name}
-                        </div>
-                    )}
-                    {selectedTools.length > 0 && (
-                        <div className="text-sm bg-gray-100 px-3 py-1 rounded-full">
-                            Tools: {selectedTools.map(tool => tool.name).join(', ')}
-                        </div>
-                    )}
+                    {/* 显示 bot 头像 */}
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200">
+                        {botAvatar ? (
+                            botAvatar.startsWith('data:') || botAvatar.startsWith('http') ? (
+                                <img src={botAvatar} alt="Bot Avatar" className="w-full h-full rounded-full" />
+                            ) : (
+                                <span className="text-2xl">{botAvatar}</span>
+                            )
+                        ) : (
+                            <span className="text-2xl">🤖</span>
+                        )}
+                    </div>
+                    {/* 显示 bot 名称和描述 */}
+                    <div>
+                        <h1 className="text-lg font-semibold">{botName || 'Unnamed Bot'}</h1>
+                        <p className="text-sm text-gray-600">{botDescription || 'No description provided'}</p>
+                    </div>
                 </div>
                 <div className="space-x-2">
                     <button

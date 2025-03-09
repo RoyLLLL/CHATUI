@@ -3,17 +3,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import StudioPreview from "../components/StudioPreview.tsx";
 import ModelSelectionModal from "../components/ModelSelectionModal";
 import ToolSelectionModal from "../components/ToolSelectionModal";
-import CreateBotInterface from '../components/CreateBotInterface'; // Ensure the path is correct
+import CreateBotInterface from '../components/CreateBotInterface';
 import { Model, Tool } from '../components/types';
 
 export const Studio = () => {
     const { botName: initialBotName } = useParams<{ botName?: string }>();
 
-    const userBots: { id: number; name: string; description: string; model: Model; tools: Tool[] }[] = [
+    const userBots: { id: number; name: string; description: string; avatar: string; model: Model; tools: Tool[] }[] = [
         {
             id: 1,
             name: 'test ChatBot',
             description: 'test',
+            avatar: '🤖',
             model: { name: 'Model 1', type: 'Type A', description: 'This is Model 1', tags: ['tag1'] },
             tools: [
                 { name: 'Tool 1', type: 'Type X', description: 'This is Tool 1', tags: ['tag1'] },
@@ -24,6 +25,7 @@ export const Studio = () => {
             id: 2,
             name: 'test2 ChatBot',
             description: 'test2',
+            avatar: '😀',
             model: { name: 'Model 2', type: 'Type B', description: 'This is Model 2', tags: ['tag2'] },
             tools: [{ name: 'Tool 3', type: 'Type Z', description: 'This is Tool 3', tags: ['tag3'] }],
         },
@@ -31,36 +33,34 @@ export const Studio = () => {
             id: 3,
             name: 'MyTestBot ChatBot',
             description: 'MyTestBot',
+            avatar: '😎',
             model: { name: 'Model 3', type: 'Type C', description: 'This is Model 3', tags: ['tag3'] },
             tools: [{ name: 'Tool 4', type: 'Type X', description: 'This is Tool 4', tags: ['tag4'] }],
         },
     ];
 
     const [isCreating, setIsCreating] = useState(false);
-    const [isCreatingBot, setIsCreatingBot] = useState(false); // New state for CreateBotInterface
+    const [isCreatingBot, setIsCreatingBot] = useState(false);
     const [creationStep, setCreationStep] = useState(0);
     const [selectedModel, setSelectedModel] = useState<Model | null>(null);
     const [selectedTools, setSelectedTools] = useState<Tool[]>([]);
-    const [botName, setBotName] = useState(initialBotName || ''); // Bot name state
-    const [botDescription, setBotDescription] = useState(''); // Bot description state
-    const [botAvatar, setBotAvatar] = useState('🤖'); // Bot avatar state
+    const [botName, setBotName] = useState(initialBotName || '');
+    const [botDescription, setBotDescription] = useState('');
+    const [botAvatar, setBotAvatar] = useState('🤖');
 
-    // Start bot creation process
     const handleStartCreatingBot = () => {
         setIsCreatingBot(true);
         setIsCreating(true);
     };
 
-    // Handle bot creation completion
     const handleBotCreated = (name: string, description: string, avatar: string) => {
         setBotName(name);
         setBotDescription(description);
         setBotAvatar(avatar);
         setIsCreatingBot(false);
-        setCreationStep(0); // Proceed to model selection
+        setCreationStep(0);
     };
 
-    // Handle model selection
     const handleModelSelect = (model: Model) => {
         setSelectedModel(model);
         if (creationStep === 0) {
@@ -68,7 +68,6 @@ export const Studio = () => {
         }
     };
 
-    // Handle tool selection
     const handleToolSelect = (tools: Tool[]) => {
         setSelectedTools(tools);
         if (creationStep === 1) {
@@ -76,7 +75,6 @@ export const Studio = () => {
         }
     };
 
-    // Handle step navigation
     const handleStepClick = (index: number) => {
         if (index === 0) {
             setCreationStep(0);
@@ -87,16 +85,15 @@ export const Studio = () => {
         }
     };
 
-    // Handle tool modal close
-    const handleToolModalClose = () => {
-        // No step reset
-    };
+    const handleToolModalClose = () => {};
 
     return (
         <div className="p-4 min-h-screen bg-gray-100">
             {initialBotName ? (
                 <StudioPreview
                     botName={initialBotName}
+                    botDescription={userBots.find(bot => bot.name === initialBotName)?.description || ''}
+                    botAvatar={userBots.find(bot => bot.name === initialBotName)?.avatar || '🤖'}
                     currentStep={creationStep}
                     selectedModel={selectedModel}
                     selectedTools={selectedTools}
@@ -115,6 +112,7 @@ export const Studio = () => {
                                     id={bot.id}
                                     name={bot.name}
                                     description={bot.description}
+                                    avatar={bot.avatar}
                                     model={bot.model}
                                     tools={bot.tools}
                                 />
@@ -151,6 +149,8 @@ export const Studio = () => {
                                     {creationStep === 2 && (
                                         <StudioPreview
                                             botName={botName || 'new-bot'}
+                                            botDescription={botDescription}
+                                            botAvatar={botAvatar}
                                             selectedModel={selectedModel}
                                             selectedTools={selectedTools}
                                             currentStep={creationStep}
@@ -169,9 +169,8 @@ export const Studio = () => {
     );
 };
 
-// Props interface for CreateAppCard
 interface CreateAppCardProps {
-    setIsCreating: () => void; // Updated to match handleStartCreatingBot signature
+    setIsCreating: () => void;
 }
 
 const CreateAppCard: React.FC<CreateAppCardProps> = ({ setIsCreating }) => {
@@ -190,20 +189,20 @@ const CreateAppCard: React.FC<CreateAppCardProps> = ({ setIsCreating }) => {
     );
 };
 
-// Props interface for BotCard
 interface BotCardProps {
     id: number;
     name: string;
     description: string;
+    avatar: string;
     model: Model;
     tools: Tool[];
 }
 
-const BotCard: React.FC<BotCardProps> = ({ id, name, description, model, tools }) => {
+const BotCard: React.FC<BotCardProps> = ({ id, name, description, avatar, model, tools }) => {
     const navigate = useNavigate();
 
     const handleBotClick = () => {
-        navigate(`/studio/edit/${id}`, { state: { bot: { id, name, description, model, tools } } });
+        navigate(`/studio/edit/${id}`, { state: { bot: { id, name, description, avatar, model, tools } } });
     };
 
     return (
@@ -212,7 +211,9 @@ const BotCard: React.FC<BotCardProps> = ({ id, name, description, model, tools }
             onClick={handleBotClick}
         >
             <div className="flex items-center mb-2">
-                <div className="w-8 h-8 bg-orange-300 rounded-full mr-2"></div>
+                <div className="w-8 h-8 bg-orange-300 rounded-full mr-2 flex items-center justify-center">
+                    <span className="text-2xl">{avatar}</span>
+                </div>
                 <h3 className="text-lg font-bold">{name}</h3>
             </div>
             <p className="text-gray-600 text-center">{description}</p>
