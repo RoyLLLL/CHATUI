@@ -26,3 +26,4 @@ studio.tsx
 studioEdit.tsx
 studioChat.tsx -> StudioPreview.tsx
 components/types.ts
+createBotInterface.tsx
