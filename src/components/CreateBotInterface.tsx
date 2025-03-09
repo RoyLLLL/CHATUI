@@ -1,23 +1,18 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 // Emoji Selection Modal Component
-// Handles emoji selection and image upload
 const EmojiSelectionModal = ({ initialEmoji, onSelect, onClose, onImageUpload }) => {
     const [selectedEmoji, setSelectedEmoji] = useState(initialEmoji);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState('Emoji'); // Tab state: 'Emoji' or 'Image'
 
-    // Sample emojis for selection
     const emojis = [
         '🤖', '😀', '😎', '🥳', '🤔', '😡', '👻', '👽', '👍', '👎',
         '✌️', '👌', '🤘', '🤙', '👈', '😈', '📷'
     ];
 
-    // Filter emojis based on search query
     const filteredEmojis = emojis.filter(emoji => emoji.includes(searchQuery));
 
-    // Handle image upload
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file && ['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(file.type)) {
@@ -32,7 +27,6 @@ const EmojiSelectionModal = ({ initialEmoji, onSelect, onClose, onImageUpload })
     return (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                {/* Top Tabs: Emoji and Image */}
                 <div className="flex mb-4">
                     <button
                         className={`flex-1 py-2 ${activeTab === 'Emoji' ? 'bg-gray-200' : 'bg-white'} rounded-l-lg`}
@@ -48,10 +42,8 @@ const EmojiSelectionModal = ({ initialEmoji, onSelect, onClose, onImageUpload })
                     </button>
                 </div>
 
-                {/* Tab Content */}
                 {activeTab === 'Emoji' && (
                     <>
-                        {/* Emoji Search Bar */}
                         <input
                             type="text"
                             placeholder="Search emojis..."
@@ -59,7 +51,6 @@ const EmojiSelectionModal = ({ initialEmoji, onSelect, onClose, onImageUpload })
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
-                        {/* Emoji Grid */}
                         <div className="grid grid-cols-5 gap-2 mb-4">
                             {filteredEmojis.map((emoji) => (
                                 <button
@@ -90,7 +81,6 @@ const EmojiSelectionModal = ({ initialEmoji, onSelect, onClose, onImageUpload })
                     </div>
                 )}
 
-                {/* Action Buttons */}
                 <div className="flex justify-end space-x-2 mt-4">
                     <button
                         onClick={onClose}
@@ -111,48 +101,45 @@ const EmojiSelectionModal = ({ initialEmoji, onSelect, onClose, onImageUpload })
 };
 
 // Main CreateBotInterface Component
-const CreateBotInterface = ({ setIsCreating})  => {
+interface CreateBotInterfaceProps {
+    onCreate: (name: string, description: string, avatar: string) => void;
+    onCancel: () => void;
+}
+
+const CreateBotInterface: React.FC<CreateBotInterfaceProps> = ({ onCreate, onCancel }) => {
     const [botName, setBotName] = useState('');
     const [description, setDescription] = useState('');
     const [selectedEmoji, setSelectedEmoji] = useState('🤖');
-    const [uploadedImage, setUploadedImage] = useState(null);
+    const [uploadedImage, setUploadedImage] = useState<string | null>(null);
     const [isEmojiModalOpen, setIsEmojiModalOpen] = useState(false);
 
-    // Handle selection from modal
-    const handleSelect = (emoji, tab) => {
+    const handleSelect = (emoji: string, tab: string) => {
         if (tab === 'Emoji' && emoji) {
             setSelectedEmoji(emoji);
-            setUploadedImage(null); // Reset image if emoji is selected
+            setUploadedImage(null);
         } else if (tab === 'Image' && uploadedImage) {
-            setSelectedEmoji(null); // Reset emoji if image is uploaded
+            setSelectedEmoji('');
         }
         setIsEmojiModalOpen(false);
     };
 
-    // Handle image upload
-    const handleImageUpload = (imageData) => {
+    const handleImageUpload = (imageData: string) => {
         setUploadedImage(imageData);
     };
-    const navigate = useNavigate();
-    // Create bot
+
     const handleCreate = () => {
-        if (selectedEmoji) {
-            console.log('Creating bot with emoji:', { botName, description, selectedEmoji });
-        } else if (uploadedImage) {
-            console.log('Creating bot with image:', { botName, description, uploadedImage });
+        if (botName && (selectedEmoji || uploadedImage)) {
+            const avatar = uploadedImage || selectedEmoji;
+            onCreate(botName, description, avatar);
         } else {
-            alert('Please select an emoji or upload an image.');
+            alert('Please provide a bot name and select an emoji or upload an image.');
         }
-        setIsCreating(false);
-        navigate(`/studio/${botName}`);
     };
 
     return (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                {/* Title */}
                 <h2 className="text-xl font-bold mb-4 text-gray-800">App Name & Icon</h2>
-                {/* App Name Input with Icon */}
                 <div className="flex items-center mb-4">
                     <input
                         type="text"
@@ -166,10 +153,13 @@ const CreateBotInterface = ({ setIsCreating})  => {
                         style={{ backgroundColor: '#FFDAB9' }}
                         onClick={() => setIsEmojiModalOpen(true)}
                     >
-                        <span className="text-2xl">{selectedEmoji || '🤖'}</span>
+                        {uploadedImage ? (
+                            <img src={uploadedImage} alt="Uploaded" className="w-full h-full rounded-full" />
+                        ) : (
+                            <span className="text-2xl">{selectedEmoji || '🤖'}</span>
+                        )}
                     </div>
                 </div>
-                {/* Description */}
                 <div className="mb-4">
                     <h3 className="text-lg font-bold mb-2 text-gray-800">Description (Optional)</h3>
                     <textarea
@@ -180,17 +170,15 @@ const CreateBotInterface = ({ setIsCreating})  => {
                         rows={3}
                     />
                 </div>
-                {/* Template Hint */}
                 <p className="text-sm text-gray-600 mb-4">
                     No ideas?{' '}
                     <a href="#" className="text-blue-500 hover:underline">
                         Check out our templates →
                     </a>
                 </p>
-                {/* Action Buttons */}
                 <div className="flex justify-end space-x-2">
                     <button
-                        onClick={() => setIsCreating(false)}
+                        onClick={onCancel}
                         className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
                     >
                         Cancel
@@ -203,7 +191,6 @@ const CreateBotInterface = ({ setIsCreating})  => {
                     </button>
                 </div>
             </div>
-            {/* Emoji and Image Selection Modal */}
             {isEmojiModalOpen && (
                 <EmojiSelectionModal
                     initialEmoji={selectedEmoji}

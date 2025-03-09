@@ -3,12 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import StudioPreview from "../components/StudioPreview.tsx";
 import ModelSelectionModal from "../components/ModelSelectionModal";
 import ToolSelectionModal from "../components/ToolSelectionModal";
+import CreateBotInterface from '../components/CreateBotInterface'; // Ensure the path is correct
 import { Model, Tool } from '../components/types';
 
 export const Studio = () => {
-    const { botName } = useParams<{ botName?: string }>(); // Type for route params
+    const { botName: initialBotName } = useParams<{ botName?: string }>();
 
-    // Define the type for userBots array
     const userBots: { id: number; name: string; description: string; model: Model; tools: Tool[] }[] = [
         {
             id: 1,
@@ -37,12 +37,30 @@ export const Studio = () => {
     ];
 
     const [isCreating, setIsCreating] = useState(false);
+    const [isCreatingBot, setIsCreatingBot] = useState(false); // New state for CreateBotInterface
     const [creationStep, setCreationStep] = useState(0);
     const [selectedModel, setSelectedModel] = useState<Model | null>(null);
     const [selectedTools, setSelectedTools] = useState<Tool[]>([]);
-    const [currentStep, setCurrentStep] = useState(0);
+    const [botName, setBotName] = useState(initialBotName || ''); // Bot name state
+    const [botDescription, setBotDescription] = useState(''); // Bot description state
+    const [botAvatar, setBotAvatar] = useState('🤖'); // Bot avatar state
 
-    // Handle model selection and proceed to tool selection step
+    // Start bot creation process
+    const handleStartCreatingBot = () => {
+        setIsCreatingBot(true);
+        setIsCreating(true);
+    };
+
+    // Handle bot creation completion
+    const handleBotCreated = (name: string, description: string, avatar: string) => {
+        setBotName(name);
+        setBotDescription(description);
+        setBotAvatar(avatar);
+        setIsCreatingBot(false);
+        setCreationStep(0); // Proceed to model selection
+    };
+
+    // Handle model selection
     const handleModelSelect = (model: Model) => {
         setSelectedModel(model);
         if (creationStep === 0) {
@@ -50,7 +68,7 @@ export const Studio = () => {
         }
     };
 
-    // Handle tool selection or skip, then proceed to preview step
+    // Handle tool selection
     const handleToolSelect = (tools: Tool[]) => {
         setSelectedTools(tools);
         if (creationStep === 1) {
@@ -58,7 +76,7 @@ export const Studio = () => {
         }
     };
 
-    // Handle step navigation click
+    // Handle step navigation
     const handleStepClick = (index: number) => {
         if (index === 0) {
             setCreationStep(0);
@@ -69,28 +87,28 @@ export const Studio = () => {
         }
     };
 
-    // Handle closing the tool modal without resetting creationStep
+    // Handle tool modal close
     const handleToolModalClose = () => {
-        // No step reset; rely on handleToolSelect logic
+        // No step reset
     };
 
     return (
         <div className="p-4 min-h-screen bg-gray-100">
-            {botName ? (
+            {initialBotName ? (
                 <StudioPreview
-                    botName={botName}           // 传递 botName
-                    currentStep={currentStep}   // 必需属性
-                    selectedModel={selectedModel} // 可选属性
-                    selectedTools={selectedTools} // 可选属性
-                    onStepClick={handleStepClick} // 可选事件处理函数
-                    onSelectModel={handleModelSelect} // 可选事件处理函数
-                    onSelectTools={handleToolSelect}  // 可选事件处理函数
+                    botName={initialBotName}
+                    currentStep={creationStep}
+                    selectedModel={selectedModel}
+                    selectedTools={selectedTools}
+                    onStepClick={handleStepClick}
+                    onSelectModel={handleModelSelect}
+                    onSelectTools={handleToolSelect}
                 />
             ) : (
                 <>
                     {!isCreating ? (
                         <div className="flex space-x-4">
-                            <CreateAppCard setIsCreating={setIsCreating} />
+                            <CreateAppCard setIsCreating={handleStartCreatingBot} />
                             {userBots.map((bot) => (
                                 <BotCard
                                     key={bot.id}
@@ -104,35 +122,44 @@ export const Studio = () => {
                         </div>
                     ) : (
                         <>
-                            {creationStep === 0 && (
-                                <ModelSelectionModal
-                                    open={true}
-                                    onClose={() => setIsCreating(false)}
-                                    currentStep={creationStep}
-                                    onStepClick={handleStepClick}
-                                    onSelect={handleModelSelect}
+                            {isCreatingBot ? (
+                                <CreateBotInterface
+                                    onCreate={handleBotCreated}
+                                    onCancel={() => setIsCreating(false)}
                                 />
-                            )}
-                            {creationStep === 1 && (
-                                <ToolSelectionModal
-                                    open={true}
-                                    onClose={handleToolModalClose}
-                                    currentStep={creationStep}
-                                    onStepClick={handleStepClick}
-                                    onSelect={handleToolSelect}
-                                    selectedTools={selectedTools}
-                                />
-                            )}
-                            {creationStep === 2 && (
-                                <StudioPreview
-                                    botName="new-bot"
-                                    selectedModel={selectedModel}
-                                    selectedTools={selectedTools}
-                                    currentStep={creationStep}
-                                    onStepClick={handleStepClick}
-                                    onSelectModel={handleModelSelect}
-                                    onSelectTools={handleToolSelect}
-                                />
+                            ) : (
+                                <>
+                                    {creationStep === 0 && (
+                                        <ModelSelectionModal
+                                            open={true}
+                                            onClose={() => setIsCreating(false)}
+                                            currentStep={creationStep}
+                                            onStepClick={handleStepClick}
+                                            onSelect={handleModelSelect}
+                                        />
+                                    )}
+                                    {creationStep === 1 && (
+                                        <ToolSelectionModal
+                                            open={true}
+                                            onClose={handleToolModalClose}
+                                            currentStep={creationStep}
+                                            onStepClick={handleStepClick}
+                                            onSelect={handleToolSelect}
+                                            selectedTools={selectedTools}
+                                        />
+                                    )}
+                                    {creationStep === 2 && (
+                                        <StudioPreview
+                                            botName={botName || 'new-bot'}
+                                            selectedModel={selectedModel}
+                                            selectedTools={selectedTools}
+                                            currentStep={creationStep}
+                                            onStepClick={handleStepClick}
+                                            onSelectModel={handleModelSelect}
+                                            onSelectTools={handleToolSelect}
+                                        />
+                                    )}
+                                </>
                             )}
                         </>
                     )}
@@ -144,7 +171,7 @@ export const Studio = () => {
 
 // Props interface for CreateAppCard
 interface CreateAppCardProps {
-    setIsCreating: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsCreating: () => void; // Updated to match handleStartCreatingBot signature
 }
 
 const CreateAppCard: React.FC<CreateAppCardProps> = ({ setIsCreating }) => {
@@ -154,7 +181,7 @@ const CreateAppCard: React.FC<CreateAppCardProps> = ({ setIsCreating }) => {
             <ul className="space-y-2">
                 <li
                     className="cursor-pointer text-black underline hover:text-gray-900"
-                    onClick={() => setIsCreating(true)}
+                    onClick={setIsCreating}
                 >
                     Create from Blank
                 </li>
@@ -175,7 +202,6 @@ interface BotCardProps {
 const BotCard: React.FC<BotCardProps> = ({ id, name, description, model, tools }) => {
     const navigate = useNavigate();
 
-    // Handle clicking the bot card to navigate to edit page
     const handleBotClick = () => {
         navigate(`/studio/edit/${id}`, { state: { bot: { id, name, description, model, tools } } });
     };
