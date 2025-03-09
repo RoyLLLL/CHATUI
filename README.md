@@ -15,10 +15,13 @@
     "@mui/joy": "^5.0.0-beta.51",
 4. IconStepper.tsx
 5. ModelSelectionModal.jsx
-6. StudioChat.tsx
+6. StudioPreview.tsx
 7. ToolSelectionModal.jsx
 8. StudioEdit.tsx
 ---------------------------------------
 IconStepper.tsx
-ModelSelectionModal.jsx
-ToolSelectionModal.jsx
+ModelSelectionModal.tsx
+ToolSelectionModal.tsx
+studio.tsx
+studioEdit.tsx
+studioChat.tsx -> StudioPreview.tsx

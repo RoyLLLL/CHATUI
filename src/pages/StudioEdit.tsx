@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import StudioChat from "../components/StudioChat";
+import StudioPreview from "../components/StudioPreview.tsx";
 import ModelSelectionModal from "../components/ModelSelectionModal";
 import ToolSelectionModal from "../components/ToolSelectionModal";
 
@@ -73,7 +73,7 @@ export const StudioEdit = () => {
                 />
             )}
             {currentStep === 2 && (
-                <StudioChat
+                <StudioPreview
                     botName={botFromState.name}
                     selectedModel={selectedModel}
                     selectedTools={selectedTools}

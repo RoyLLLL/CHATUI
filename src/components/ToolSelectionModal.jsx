@@ -28,6 +28,12 @@ const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect,
 
     const handleConfirm = () => {
         onSelect(tempSelectedTools);
+        onClose(); // Close the modal after confirming selection
+    };
+
+    const handleSkip = () => {
+        onSelect([]); // Pass an empty array to indicate no tools selected
+        onClose(); // Close the modal
     };
 
     return (
@@ -38,10 +44,10 @@ const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect,
                     p: 3,
                     borderRadius: 2,
                     boxShadow: 2,
-                    width: '66.67%', // 动态占浏览器宽度的三分之二
+                    width: '66.67%', // Dynamically takes two-thirds of the browser width
                     maxHeight: "80vh",
                     overflowY: "auto",
-                    margin: "auto", // 水平居中
+                    margin: "auto", // Center horizontally
                     mt: 10,
                 }}
             >
@@ -120,6 +126,12 @@ const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect,
                         onClick={onClose}
                     >
                         Cancel
+                    </button>
+                    <button
+                        className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+                        onClick={handleSkip}
+                    >
+                        Skip
                     </button>
                     <button
                         className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
