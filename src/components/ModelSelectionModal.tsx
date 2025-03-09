@@ -48,7 +48,7 @@ const ModelSelectionModal: React.FC<ModelSelectionModalProps> = ({
                 }}
             >
                 <IconStepper currentStep={currentStep} onStepClick={onStepClick} />
-                <Typography level="h6" sx={{ mt: 2, mb: 2 }}>
+                <Typography sx={{ fontSize: '1.25rem', fontWeight: 'bold', mt: 2, mb: 2 }}>
                     Select Model
                 </Typography>
                 <div className="mb-4">
@@ -81,12 +81,14 @@ const ModelSelectionModal: React.FC<ModelSelectionModalProps> = ({
                             sx={{ cursor: "pointer", "&:hover": { boxShadow: 3 } }}
                         >
                             <CardContent>
-                                <Typography level="h6">{model.name}</Typography>
-                                <Typography level="body2" textColor="neutral">
+                                <Typography sx={{ fontSize: '1rem', fontWeight: 'medium' }}>
+                                    {model.name}
+                                </Typography>
+                                <Typography sx={{ fontSize: '0.875rem', color: '#757575' }}>
                                     {model.type}
                                 </Typography>
                                 {model.description && (
-                                    <Typography level="body2" textColor="text.secondary">
+                                    <Typography sx={{ fontSize: '0.875rem', color: '#757575' }}>
                                         {model.description}
                                     </Typography>
                                 )}

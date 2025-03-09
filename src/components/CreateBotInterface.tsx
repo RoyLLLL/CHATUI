@@ -113,4 +113,107 @@ const EmojiSelectionModal: React.FC<EmojiSelectionModalProps> = ({ initialEmoji,
     );
 };
 
-export default EmojiSelectionModal;
+interface CreateBotInterfaceProps {
+    onCreate: (name: string, description: string, avatar: string) => void;
+    onCancel: () => void;
+}
+
+// 使用 React.FC 并传入 Props 类型
+const CreateBotInterface: React.FC<CreateBotInterfaceProps> = ({ onCreate, onCancel }) => {
+    const [botName, setBotName] = useState('');
+    const [description, setDescription] = useState('');
+    const [selectedEmoji, setSelectedEmoji] = useState('🤖');
+    const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+    const [isEmojiModalOpen, setIsEmojiModalOpen] = useState(false);
+
+    const handleSelect = (emoji: string, tab: string) => {
+        if (tab === 'Emoji' && emoji) {
+            setSelectedEmoji(emoji);
+            setUploadedImage(null);
+        } else if (tab === 'Image' && uploadedImage) {
+            setSelectedEmoji('');
+        }
+        setIsEmojiModalOpen(false);
+    };
+
+    const handleImageUpload = (imageData: string) => {
+        setUploadedImage(imageData);
+    };
+
+    const handleCreate = () => {
+        if (botName && (selectedEmoji || uploadedImage)) {
+            const avatar = uploadedImage || selectedEmoji;
+            onCreate(botName, description, avatar);
+        } else {
+            alert('Please provide a bot name and select an emoji or upload an image.');
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                <h2 className="text-xl font-bold mb-4 text-gray-800">App Name & Icon</h2>
+                <div className="flex items-center mb-4">
+                    <input
+                        type="text"
+                        value={botName}
+                        onChange={(e) => setBotName(e.target.value)}
+                        placeholder="Give your app a name"
+                        className="flex-1 border rounded p-2 bg-gray-100 text-gray-700 placeholder-gray-400"
+                    />
+                    <div
+                        className="ml-2 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer shadow-sm"
+                        style={{ backgroundColor: '#FFDAB9' }}
+                        onClick={() => setIsEmojiModalOpen(true)}
+                    >
+                        {uploadedImage ? (
+                            <img src={uploadedImage} alt="Uploaded" className="w-full h-full rounded-full" />
+                        ) : (
+                            <span className="text-2xl">{selectedEmoji || '🤖'}</span>
+                        )}
+                    </div>
+                </div>
+                <div className="mb-4">
+                    <h3 className="text-lg font-bold mb-2 text-gray-800">Description (Optional)</h3>
+                    <textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Enter the description of the app"
+                        className="w-full border rounded p-2 bg-gray-100 text-gray-700 placeholder-gray-400"
+                        rows={3}
+                    />
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                    No ideas?{' '}
+                    <a href="#" className="text-blue-500 hover:underline">
+                        Check out our templates →
+                    </a>
+                </p>
+                <div className="flex justify-end space-x-2">
+                    <button
+                        onClick={onCancel}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleCreate}
+                        className="px-4 py-2 bg-blue-400 text-white rounded hover:bg-blue-500 flex items-center"
+                    >
+                        Create <span className="ml-2">✨</span>
+                    </button>
+                </div>
+            </div>
+            {isEmojiModalOpen && (
+                <EmojiSelectionModal
+                    initialEmoji={selectedEmoji}
+                    onSelect={handleSelect}
+                    onClose={() => setIsEmojiModalOpen(false)}
+                    onImageUpload={handleImageUpload}
+                />
+            )}
+        </div>
+    );
+};
+
+export default CreateBotInterface;

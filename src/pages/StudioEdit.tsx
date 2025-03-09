@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import StudioPreview from "../components/StudioPreview.tsx";
 import ModelSelectionModal from "../components/ModelSelectionModal";
@@ -19,13 +19,10 @@ export const StudioEdit = () => {
     const location = useLocation();
     const botFromState = location.state?.bot as Bot | undefined;
 
-    if (!botFromState) {
-        return <div className="p-4 min-h-screen bg-gray-100">Invalid access: bot data not found</div>;
-    }
-
+    // 将 Hooks 移动到顶层，确保无条件调用
     const [currentStep, setCurrentStep] = useState(2);
-    const [selectedModel, setSelectedModel] = useState<Model | null>(botFromState.model);
-    const [selectedTools, setSelectedTools] = useState<Tool[]>(botFromState.tools);
+    const [selectedModel, setSelectedModel] = useState<Model | null>(null);
+    const [selectedTools, setSelectedTools] = useState<Tool[]>([]);
 
     useEffect(() => {
         if (botFromState) {
@@ -34,6 +31,11 @@ export const StudioEdit = () => {
             setSelectedTools(botFromState.tools);
         }
     }, [botFromState]);
+
+    // 在 Hooks 之后进行条件渲染
+    if (!botFromState) {
+        return <div className="p-4 min-h-screen bg-gray-100">Invalid access: bot data not found</div>;
+    }
 
     const handleModelSelect = (model: Model) => {
         setSelectedModel(model);

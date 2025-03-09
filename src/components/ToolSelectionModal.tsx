@@ -73,7 +73,7 @@ const ToolSelectionModal: React.FC<ToolSelectionModalProps> = ({
                 }}
             >
                 <IconStepper currentStep={currentStep} onStepClick={onStepClick} />
-                <Typography level="h6" sx={{ mt: 2, mb: 2 }}>
+                <Typography sx={{ fontSize: '1.25rem', fontWeight: 'bold', mt: 2, mb: 2 }}>
                     Select Tools
                 </Typography>
                 <div className="mb-4">
@@ -115,13 +115,15 @@ const ToolSelectionModal: React.FC<ToolSelectionModalProps> = ({
                                         onChange={() => handleToolToggle(tool)}
                                         className="mr-2"
                                     />
-                                    <Typography level="h6">{tool.name}</Typography>
+                                    <Typography sx={{ fontSize: '1rem', fontWeight: 'medium' }}>
+                                        {tool.name}
+                                    </Typography>
                                 </div>
-                                <Typography level="body2" textColor="neutral">
+                                <Typography sx={{ fontSize: '0.875rem', color: '#757575' }}>
                                     {tool.type}
                                 </Typography>
                                 {tool.description && (
-                                    <Typography level="body2" textColor="text.secondary">
+                                    <Typography sx={{ fontSize: '0.875rem', color: '#757575' }}>
                                         {tool.description}
                                     </Typography>
                                 )}
