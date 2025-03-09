@@ -18,3 +18,7 @@
 6. StudioChat.tsx
 7. ToolSelectionModal.jsx
 8. StudioEdit.tsx
+---------------------------------------
+IconStepper.tsx
+ModelSelectionModal.jsx
+ToolSelectionModal.jsx

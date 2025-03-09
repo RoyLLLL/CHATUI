@@ -28,7 +28,6 @@ const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect,
 
     const handleConfirm = () => {
         onSelect(tempSelectedTools);
-        // Do not call onClose here
     };
 
     return (
@@ -39,10 +38,10 @@ const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect,
                     p: 3,
                     borderRadius: 2,
                     boxShadow: 2,
-                    minWidth: 600,
+                    width: '66.67%', // 动态占浏览器宽度的三分之二
                     maxHeight: "80vh",
                     overflowY: "auto",
-                    margin: "auto",
+                    margin: "auto", // 水平居中
                     mt: 10,
                 }}
             >

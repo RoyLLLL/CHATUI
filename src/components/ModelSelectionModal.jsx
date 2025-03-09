@@ -5,21 +5,15 @@ import IconStepper from "./IconStepper";
 const ModelSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect }) => {
     const [selectedTag, setSelectedTag] = useState(null);
 
-    // Generate 10 models with sample data
     const models = Array.from({ length: 10 }, (_, i) => ({
         name: `Model ${i + 1}`,
         description: `This is Model ${i + 1}`,
-        type: `Type ${String.fromCharCode(65 + (i % 3))}`, // Types A, B, C
-        tags: [
-            `tag${(i % 3) + 1}`, // tag1, tag2, tag3
-            `tag${(i % 2) + 4}`, // tag4, tag5
-        ],
+        type: `Type ${String.fromCharCode(65 + (i % 3))}`,
+        tags: [`tag${(i % 3) + 1}`, `tag${(i % 2) + 4}`],
     }));
 
-    // Extract unique tags
     const allTags = useMemo(() => [...new Set(models.flatMap(model => model.tags || []))], []);
 
-    // Filter models by selected tag
     const filteredModels = selectedTag ? models.filter(model => model.tags?.includes(selectedTag)) : models;
 
     return (
@@ -30,10 +24,10 @@ const ModelSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect
                     p: 3,
                     borderRadius: 2,
                     boxShadow: 2,
-                    minWidth: 600,
-                    maxHeight: "80vh", // Limit height for scrolling
-                    overflowY: "auto", // Enable vertical scrolling
-                    margin: "auto",
+                    width: '66.67%', // 动态占浏览器宽度的三分之二
+                    maxHeight: "80vh",
+                    overflowY: "auto",
+                    margin: "auto", // 水平居中
                     mt: 10,
                 }}
             >
@@ -41,7 +35,6 @@ const ModelSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect
                 <Typography level="h6" sx={{ mt: 2, mb: 2 }}>
                     Select Model
                 </Typography>
-                {/* Tag filter dropdown */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium mb-2">Filter by Tag</label>
                     <select
@@ -81,7 +74,6 @@ const ModelSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect
                                         {model.description}
                                     </Typography>
                                 )}
-                                {/* Display tags */}
                                 {model.tags && (
                                     <div className="flex flex-wrap gap-1 mt-2">
                                         {model.tags.map((tag, i) => (
