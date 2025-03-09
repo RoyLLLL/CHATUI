@@ -1,12 +1,30 @@
 import React, { useState, useMemo } from "react";
 import { Modal, Box, Typography, Card, CardContent } from "@mui/joy";
 import IconStepper from "./IconStepper";
+import { Tool } from './types';
 
-const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect, selectedTools = [] }) => {
-    const [selectedTag, setSelectedTag] = useState(null);
-    const [tempSelectedTools, setTempSelectedTools] = useState(selectedTools);
+// Props interface for ToolSelectionModal
+interface ToolSelectionModalProps {
+    open: boolean;
+    onClose: () => void;
+    currentStep: number;
+    onStepClick: (index: number) => void;
+    onSelect: (tools: Tool[]) => void;
+    selectedTools?: Tool[];
+}
 
-    const tools = Array.from({ length: 10 }, (_, i) => ({
+const ToolSelectionModal: React.FC<ToolSelectionModalProps> = ({
+                                                                   open,
+                                                                   onClose,
+                                                                   currentStep,
+                                                                   onStepClick,
+                                                                   onSelect,
+                                                                   selectedTools = [],
+                                                               }) => {
+    const [selectedTag, setSelectedTag] = useState<string | null>(null);
+    const [tempSelectedTools, setTempSelectedTools] = useState<Tool[]>(selectedTools);
+
+    const tools: Tool[] = Array.from({ length: 10 }, (_, i) => ({
         name: `Tool ${i + 1}`,
         description: `This is Tool ${i + 1}`,
         type: `Type ${String.fromCharCode(88 + (i % 3))}`,
@@ -16,7 +34,8 @@ const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect,
     const allTags = useMemo(() => [...new Set(tools.flatMap(tool => tool.tags || []))], [tools]);
     const filteredTools = selectedTag ? tools.filter(tool => tool.tags?.includes(selectedTag)) : tools;
 
-    const handleToolToggle = (tool) => {
+    // Handle toggling tool selection
+    const handleToolToggle = (tool: Tool) => {
         setTempSelectedTools(prev => {
             if (prev.some(t => t.name === tool.name)) {
                 return prev.filter(t => t.name !== tool.name);
@@ -26,14 +45,16 @@ const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect,
         });
     };
 
+    // Confirm tool selection and close modal
     const handleConfirm = () => {
         onSelect(tempSelectedTools);
-        onClose(); // Close the modal after confirming selection
+        onClose();
     };
 
+    // Skip tool selection and proceed with empty tools
     const handleSkip = () => {
-        onSelect([]); // Pass an empty array to indicate no tools selected
-        onClose(); // Close the modal
+        onSelect([]);
+        onClose();
     };
 
     return (
@@ -44,10 +65,10 @@ const ToolSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect,
                     p: 3,
                     borderRadius: 2,
                     boxShadow: 2,
-                    width: '66.67%', // Dynamically takes two-thirds of the browser width
+                    width: '66.67%',
                     maxHeight: "80vh",
                     overflowY: "auto",
-                    margin: "auto", // Center horizontally
+                    margin: "auto",
                     mt: 10,
                 }}
             >

@@ -1,11 +1,27 @@
 import React, { useState, useMemo } from "react";
 import { Modal, Box, Typography, Card, CardContent } from "@mui/joy";
 import IconStepper from "./IconStepper";
+import { Model } from './types';
 
-const ModelSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect }) => {
-    const [selectedTag, setSelectedTag] = useState(null);
+// Props interface for ModelSelectionModal
+interface ModelSelectionModalProps {
+    open: boolean;
+    onClose: () => void;
+    currentStep: number;
+    onStepClick?: (index: number) => void; // 改为可选属性
+    onSelect: (model: Model) => void;
+}
 
-    const models = Array.from({ length: 10 }, (_, i) => ({
+const ModelSelectionModal: React.FC<ModelSelectionModalProps> = ({
+                                                                     open,
+                                                                     onClose,
+                                                                     currentStep,
+                                                                     onStepClick,
+                                                                     onSelect,
+                                                                 }) => {
+    const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+    const models: Model[] = Array.from({ length: 10 }, (_, i) => ({
         name: `Model ${i + 1}`,
         description: `This is Model ${i + 1}`,
         type: `Type ${String.fromCharCode(65 + (i % 3))}`,
@@ -24,10 +40,10 @@ const ModelSelectionModal = ({ open, onClose, currentStep, onStepClick, onSelect
                     p: 3,
                     borderRadius: 2,
                     boxShadow: 2,
-                    width: '66.67%', // 动态占浏览器宽度的三分之二
+                    width: '66.67%',
                     maxHeight: "80vh",
                     overflowY: "auto",
-                    margin: "auto", // 水平居中
+                    margin: "auto",
                     mt: 10,
                 }}
             >

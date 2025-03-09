@@ -1,9 +1,25 @@
 import React, { useState, useMemo } from "react";
 import IconStepper from "./IconStepper";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { Model, Tool } from './types';
 
-const getRandomTags = (i, totalTags = 5) => {
-    const tags = [];
+// Props interface for StudioPreview
+interface StudioPreviewProps {
+    botName?: string;
+    botId?: string;
+    selectedModel?: Model | null;
+    selectedTools?: Tool[];
+    currentStep: number;
+    onStepClick?: (index: number) => void;
+    onSelectModel?: (model: Model) => void;
+    onSelectTools?: (tools: Tool[]) => void;
+    tools?: Tool[];
+    models?: Model[];
+}
+
+// Utility function to generate random tags
+const getRandomTags = (i: number, totalTags = 5): string[] => {
+    const tags: string[] = [];
     const numTags = (i % 3) + 1;
     for (let j = 0; j < numTags; j++) {
         const tagIndex = (i + j) % totalTags + 1;
@@ -12,50 +28,42 @@ const getRandomTags = (i, totalTags = 5) => {
     return tags;
 };
 
-const StudioPreview = ({
-                        botName = '',
-                        selectedModel = null,
-                        selectedTools = [],
-                        currentStep,
-                        onStepClick = () => {},
-                        onSelectModel = () => {},
-                        onSelectTools = () => {},
-                        tools = Array.from({ length: 15 }, (_, i) => ({
-                            name: `Tool ${i + 1}`,
-                            type: `Type ${i % 3 + 1}`,
-                            description: `Description for Tool ${i + 1}`,
-                            tags: getRandomTags(i),
-                        })),
-                        models = Array.from({ length: 15 }, (_, i) => ({
-                            name: `Model ${i + 1}`,
-                            type: `Type ${i % 3 + 1}`,
-                            description: `Description for Model ${i + 1}`,
-                            tags: getRandomTags(i),
-                        })),
-                    }) => {
+const StudioPreview: React.FC<StudioPreviewProps> = ({
+                                                         botName = '',
+                                                         botId = '',
+                                                         selectedModel = null,
+                                                         selectedTools = [],
+                                                         currentStep,
+                                                         onStepClick = () => {},
+                                                         onSelectModel = () => {},
+                                                         onSelectTools = () => {},
+                                                         tools = Array.from({ length: 15 }, (_, i) => ({
+                                                             name: `Tool ${i + 1}`,
+                                                             type: `Type ${i % 3 + 1}`,
+                                                             description: `Description for Tool ${i + 1}`,
+                                                             tags: getRandomTags(i),
+                                                         })),
+                                                         models = Array.from({ length: 15 }, (_, i) => ({
+                                                             name: `Model ${i + 1}`,
+                                                             type: `Type ${i % 3 + 1}`,
+                                                             description: `Description for Model ${i + 1}`,
+                                                             tags: getRandomTags(i),
+                                                         })),
+                                                     }) => {
     const [isToolModalOpen, setIsToolModalOpen] = useState(false);
     const [isModelModalOpen, setIsModelModalOpen] = useState(false);
-    const [selectedToolTag, setSelectedToolTag] = useState(null);
-    const [selectedModelTag, setSelectedModelTag] = useState(null);
-    const [tempSelectedTools, setTempSelectedTools] = useState(selectedTools);
+    const [selectedToolTag, setSelectedToolTag] = useState<string | null>(null);
+    const [selectedModelTag, setSelectedModelTag] = useState<string | null>(null);
+    const [tempSelectedTools, setTempSelectedTools] = useState<Tool[]>(selectedTools);
 
-    const allToolTags = useMemo(
-        () => [...new Set(tools.flatMap(tool => tool.tags))],
-        [tools]
-    );
-    const allModelTags = useMemo(
-        () => [...new Set(models.flatMap(model => model.tags))],
-        [models]
-    );
+    const allToolTags = useMemo(() => [...new Set(tools.flatMap(tool => tool.tags))], [tools]);
+    const allModelTags = useMemo(() => [...new Set(models.flatMap(model => model.tags))], [models]);
 
-    const filteredTools = selectedToolTag
-        ? tools.filter(tool => tool.tags.includes(selectedToolTag))
-        : tools;
-    const filteredModels = selectedModelTag
-        ? models.filter(model => model.tags.includes(selectedModelTag))
-        : models;
+    const filteredTools = selectedToolTag ? tools.filter(tool => tool.tags.includes(selectedToolTag)) : tools;
+    const filteredModels = selectedModelTag ? models.filter(model => model.tags.includes(selectedModelTag)) : models;
 
-    const handleToolToggle = (tool) => {
+    // Handle toggling tool selection
+    const handleToolToggle = (tool: Tool) => {
         setTempSelectedTools(prev => {
             if (prev.some(t => t.name === tool.name)) {
                 return prev.filter(t => t.name !== tool.name);
@@ -65,27 +73,26 @@ const StudioPreview = ({
         });
     };
 
+    // Confirm selected tools and close modal
     const handleConfirmTools = () => {
         onSelectTools(tempSelectedTools);
         setIsToolModalOpen(false);
     };
 
-    const handleModelSelect = (model) => {
+    // Handle model selection and close modal
+    const handleModelSelect = (model: Model) => {
         onSelectModel(model);
         setIsModelModalOpen(false);
     };
 
     return (
         <div className="flex flex-col h-screen bg-gray-100 items-center">
-            {/* 将进度条和下面的内容都放在同一个宽度容器里 */}
             <div className="w-2/3 p-4">
                 <IconStepper currentStep={currentStep} onStepClick={onStepClick} />
             </div>
-
-            {/* 这里同样用 w-2/3 来与上面对齐 */}
             <div className="w-2/3 flex items-center justify-between p-4 bg-white shadow-md">
                 <div className="flex items-center space-x-4">
-                    <h1 className="text-lg font-semibold">Orchestrate</h1>
+                    <h1 className="text-lg font-semibold">{botName}</h1>
                     {selectedModel && (
                         <div className="text-sm bg-gray-100 px-3 py-1 rounded-full">
                             Model: {selectedModel.name}
@@ -99,25 +106,24 @@ const StudioPreview = ({
                 </div>
                 <div className="space-x-2">
                     <button
-                        className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors"
+                        className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors"
                         onClick={() => setIsModelModalOpen(true)}
                     >
                         {selectedModel ? `Model: ${selectedModel.name}` : 'Select Model'}
                     </button>
                     <button
-                        className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors"
+                        className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors"
                         onClick={() => setIsToolModalOpen(true)}
                     >
                         {selectedTools.length > 0
                             ? `Tools: ${selectedTools.map(t => t.name).join(', ')}`
                             : 'Select Tools'}
                     </button>
-                    <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
                         Publish
                     </button>
                 </div>
             </div>
-
             <div className="w-2/3 flex-grow p-6 bg-white shadow-md">
                 <h2 className="text-md font-semibold mb-2">Instructions</h2>
                 <textarea
@@ -139,16 +145,12 @@ const StudioPreview = ({
                     </div>
                 </div>
             </div>
-
-            {/* Tool Selection Modal */}
             {isToolModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
                         <h2 className="text-lg font-semibold mb-4">Select Tools</h2>
                         <div className="mb-4">
-                            <label className="block text-sm font-medium mb-2">
-                                Filter by Tag
-                            </label>
+                            <label className="block text-sm font-medium mb-2">Filter by Tag</label>
                             <select
                                 className="w-full border rounded p-2"
                                 value={selectedToolTag || ''}
@@ -175,9 +177,7 @@ const StudioPreview = ({
                                     <div className="flex items-center mb-4">
                                         <input
                                             type="checkbox"
-                                            checked={tempSelectedTools.some(
-                                                t => t.name === tool.name
-                                            )}
+                                            checked={tempSelectedTools.some(t => t.name === tool.name)}
                                             onChange={() => handleToolToggle(tool)}
                                             className="mr-2"
                                         />
@@ -193,8 +193,8 @@ const StudioPreview = ({
                                                 key={i}
                                                 className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded"
                                             >
-                        {tag}
-                      </span>
+                                                {tag}
+                                            </span>
                                         ))}
                                     </div>
                                 </div>
@@ -217,16 +217,12 @@ const StudioPreview = ({
                     </div>
                 </div>
             )}
-
-            {/* Model Selection Modal */}
             {isModelModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
                         <h2 className="text-lg font-semibold mb-4">Select Model</h2>
                         <div className="mb-4">
-                            <label className="block text-sm font-medium mb-2">
-                                Filter by Tag
-                            </label>
+                            <label className="block text-sm font-medium mb-2">Filter by Tag</label>
                             <select
                                 className="w-full border rounded p-2"
                                 value={selectedModelTag || ''}
@@ -260,8 +256,8 @@ const StudioPreview = ({
                                                 key={i}
                                                 className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded"
                                             >
-                        {tag}
-                      </span>
+                                                {tag}
+                                            </span>
                                         ))}
                                     </div>
                                 </div>

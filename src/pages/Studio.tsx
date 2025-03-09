@@ -3,10 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import StudioPreview from "../components/StudioPreview.tsx";
 import ModelSelectionModal from "../components/ModelSelectionModal";
 import ToolSelectionModal from "../components/ToolSelectionModal";
+import { Model, Tool } from '../components/types';
 
 export const Studio = () => {
-    const { botName } = useParams();
-    const userBots = [
+    const { botName } = useParams<{ botName?: string }>(); // Type for route params
+
+    // Define the type for userBots array
+    const userBots: { id: number; name: string; description: string; model: Model; tools: Tool[] }[] = [
         {
             id: 1,
             name: 'test ChatBot',
@@ -35,33 +38,28 @@ export const Studio = () => {
 
     const [isCreating, setIsCreating] = useState(false);
     const [creationStep, setCreationStep] = useState(0);
-    const [selectedModel, setSelectedModel] = useState(null);
-    const [selectedTools, setSelectedTools] = useState([]);
+    const [selectedModel, setSelectedModel] = useState<Model | null>(null);
+    const [selectedTools, setSelectedTools] = useState<Tool[]>([]);
+    const [currentStep, setCurrentStep] = useState(0);
 
-    // 点击“Create from Blank”按钮，开始创建流程
-    const handleCreateFromBlank = () => {
-        setIsCreating(true);
-        setCreationStep(0);
-    };
-
-    // 选择模型后进入工具选择步骤
-    const handleModelSelect = (model) => {
+    // Handle model selection and proceed to tool selection step
+    const handleModelSelect = (model: Model) => {
         setSelectedModel(model);
         if (creationStep === 0) {
             setCreationStep(1);
         }
     };
 
-    // 处理工具选择或跳过，进入预览步骤
-    const handleToolSelect = (tools) => {
+    // Handle tool selection or skip, then proceed to preview step
+    const handleToolSelect = (tools: Tool[]) => {
         setSelectedTools(tools);
         if (creationStep === 1) {
-            setCreationStep(2); // 始终进入 Preview 步骤
+            setCreationStep(2);
         }
     };
 
-    // 点击步骤导航时的逻辑
-    const handleStepClick = (index) => {
+    // Handle step navigation click
+    const handleStepClick = (index: number) => {
         if (index === 0) {
             setCreationStep(0);
         } else if (index === 1 && selectedModel) {
@@ -71,22 +69,37 @@ export const Studio = () => {
         }
     };
 
-    // 工具选择模态框关闭时的处理，不重置 creationStep
+    // Handle closing the tool modal without resetting creationStep
     const handleToolModalClose = () => {
-        // 不做任何步骤重置，依赖 handleToolSelect 的逻辑
+        // No step reset; rely on handleToolSelect logic
     };
 
     return (
         <div className="p-4 min-h-screen bg-gray-100">
             {botName ? (
-                <StudioPreview botName={botName} />
+                <StudioPreview
+                    botName={botName}           // 传递 botName
+                    currentStep={currentStep}   // 必需属性
+                    selectedModel={selectedModel} // 可选属性
+                    selectedTools={selectedTools} // 可选属性
+                    onStepClick={handleStepClick} // 可选事件处理函数
+                    onSelectModel={handleModelSelect} // 可选事件处理函数
+                    onSelectTools={handleToolSelect}  // 可选事件处理函数
+                />
             ) : (
                 <>
                     {!isCreating ? (
                         <div className="flex space-x-4">
-                            <CreateAppCard setIsCreating={handleCreateFromBlank} />
+                            <CreateAppCard setIsCreating={setIsCreating} />
                             {userBots.map((bot) => (
-                                <BotCard key={bot.id} id={bot.id} name={bot.name} description={bot.description} model={bot.model} tools={bot.tools}/>
+                                <BotCard
+                                    key={bot.id}
+                                    id={bot.id}
+                                    name={bot.name}
+                                    description={bot.description}
+                                    model={bot.model}
+                                    tools={bot.tools}
+                                />
                             ))}
                         </div>
                     ) : (
@@ -103,7 +116,7 @@ export const Studio = () => {
                             {creationStep === 1 && (
                                 <ToolSelectionModal
                                     open={true}
-                                    onClose={handleToolModalClose} // 不重置步骤
+                                    onClose={handleToolModalClose}
                                     currentStep={creationStep}
                                     onStepClick={handleStepClick}
                                     onSelect={handleToolSelect}
@@ -129,7 +142,12 @@ export const Studio = () => {
     );
 };
 
-const CreateAppCard = ({ setIsCreating }) => {
+// Props interface for CreateAppCard
+interface CreateAppCardProps {
+    setIsCreating: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const CreateAppCard: React.FC<CreateAppCardProps> = ({ setIsCreating }) => {
     return (
         <div className="p-4 border rounded-lg shadow-md bg-white w-64 h-48 overflow-hidden">
             <h3 className="text-lg font-bold mb-2">CREATE APP</h3>
@@ -145,9 +163,19 @@ const CreateAppCard = ({ setIsCreating }) => {
     );
 };
 
-const BotCard = ({ id, name = '', description = '', model, tools }) => {
+// Props interface for BotCard
+interface BotCardProps {
+    id: number;
+    name: string;
+    description: string;
+    model: Model;
+    tools: Tool[];
+}
+
+const BotCard: React.FC<BotCardProps> = ({ id, name, description, model, tools }) => {
     const navigate = useNavigate();
 
+    // Handle clicking the bot card to navigate to edit page
     const handleBotClick = () => {
         navigate(`/studio/edit/${id}`, { state: { bot: { id, name, description, model, tools } } });
     };
@@ -165,3 +193,5 @@ const BotCard = ({ id, name = '', description = '', model, tools }) => {
         </div>
     );
 };
+
+export default Studio;

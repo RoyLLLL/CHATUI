@@ -4,12 +4,18 @@ import Step, { stepClasses } from '@mui/joy/Step';
 import StepIndicator, { stepIndicatorClasses } from '@mui/joy/StepIndicator';
 import Typography from '@mui/joy/Typography';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
-import ViewModuleIcon from '@mui/icons-material/ViewModule'; // 用于 "Model Select"
-import BuildIcon from '@mui/icons-material/Build'; // 用于 "Tool Select"
-import VisibilityIcon from '@mui/icons-material/Visibility'; // 用于 "Preview"
+import ViewModuleIcon from '@mui/icons-material/ViewModule'; // Icon for "Model Select"
+import BuildIcon from '@mui/icons-material/Build'; // Icon for "Tool Select"
+import VisibilityIcon from '@mui/icons-material/Visibility'; // Icon for "Preview"
 
-const IconStepper = ({ currentStep, onStepClick = () => {} }) => {
-    const steps = [
+// Props interface for IconStepper
+interface IconStepperProps {
+    currentStep: number;
+    onStepClick?: (index: number) => void;
+}
+
+const IconStepper: React.FC<IconStepperProps> = ({ currentStep, onStepClick = () => {} }) => {
+    const steps: { icon: React.ReactNode; label: string }[] = [
         { icon: <ViewModuleIcon />, label: 'Model Select' },
         { icon: <BuildIcon />, label: 'Tool Select' },
         { icon: <VisibilityIcon />, label: 'Preview' },
@@ -20,9 +26,9 @@ const IconStepper = ({ currentStep, onStepClick = () => {} }) => {
             <Stepper
                 size="lg"
                 sx={{
-                    width: '66.67%', // 动态占浏览器宽度的三分之二
+                    width: '66.67%', // Dynamically takes two-thirds of the browser width
                     display: 'flex',
-                    justifyContent: 'space-between', // 使步骤平均分配
+                    justifyContent: 'space-between',
                     '--StepIndicator-size': '3rem',
                     '--Step-connectorInset': '0px',
                     [`& .${stepIndicatorClasses.root}`]: {
@@ -34,21 +40,20 @@ const IconStepper = ({ currentStep, onStepClick = () => {} }) => {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        overflow: 'visible', // 确保 ::after 不被裁剪
+                        overflow: 'visible',
                         '&::after': {
                             content: '""',
                             position: 'absolute',
                             top: '50%',
-                            // 调整这两个值可增大/减小图标和连线的间距
                             left: 'calc(50% + 2.5rem)',
                             width: 'calc(100% - 4rem)',
                             height: '4px',
-                            bgcolor: 'neutral.outlinedDisabledColor', // 默认连线颜色
+                            bgcolor: 'neutral.outlinedDisabledColor',
                             zIndex: 0,
                             transform: 'translateY(-50%)',
                         },
                         '&:last-child::after': {
-                            display: 'none', // 最后一个步骤不需要连线
+                            display: 'none',
                         },
                     },
                     [`& .${stepClasses.completed}`]: {
@@ -57,7 +62,7 @@ const IconStepper = ({ currentStep, onStepClick = () => {} }) => {
                             color: 'primary.300',
                         },
                         '&::after': {
-                            bgcolor: 'primary.300', // 完成状态的连线颜色
+                            bgcolor: 'primary.300',
                         },
                     },
                     [`& .${stepClasses.active}`]: {
@@ -79,9 +84,7 @@ const IconStepper = ({ currentStep, onStepClick = () => {} }) => {
                             completed={isCompleted}
                             active={isActive}
                             onClick={() => isCompleted && onStepClick(index)}
-                            sx={{
-                                cursor: isCompleted ? 'pointer' : 'default',
-                            }}
+                            sx={{ cursor: isCompleted ? 'pointer' : 'default' }}
                         >
                             <div
                                 style={{

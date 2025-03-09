@@ -14,9 +14,9 @@
     "@mui/icons-material": "^6.4.7",
     "@mui/joy": "^5.0.0-beta.51",
 4. IconStepper.tsx
-5. ModelSelectionModal.jsx
+5. ModelSelectionModal.tsx
 6. StudioPreview.tsx
-7. ToolSelectionModal.jsx
+7. ToolSelectionModal.tsx
 8. StudioEdit.tsx
 ---------------------------------------
 IconStepper.tsx
@@ -25,3 +25,4 @@ ToolSelectionModal.tsx
 studio.tsx
 studioEdit.tsx
 studioChat.tsx -> StudioPreview.tsx
+components/types.ts
