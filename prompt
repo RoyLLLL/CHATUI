@@ -1,0 +1,11 @@
+prompt_template = PromptTemplate(
+    input_variables=["summary"],
+    template="""
+    Bonds are fixed-income securities that represent a loan made by an investor to a borrower, typically corporate or governmental.
+    Coupons are the interest payments made to bondholders, usually paid semi-annually.
+
+    Given the following news summary: {summary}
+
+    Is this news related to bonds or coupons? Answer with 'True' if it is related, otherwise 'False'.
+    """
+)
