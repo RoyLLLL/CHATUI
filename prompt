@@ -1,3 +1,29 @@
+from langchain.prompts import PromptTemplate
+from langchain.llms import OpenAI
+import pandas as pd
+
+# 模拟你的新闻列表
+data = [
+    {'company': 'axa sa', 'index': 0, 'summary': 'Brief-BNP Paribas Sees Closing Of AXA Investment Managers Acquisition In Early July',
+     'thumbdown': 'http', 'thumbup': 'http://',
+     'title': '0.<a href=https://....>BRIEF-BNP Paribas Sees Closing O AXA Investment Managers Acquisition In Early July</a>.'},
+
+    {'company': 'axa sa', 'index': 1, 'summary': 'REG-BNP Paribas SA: ACQUISITION BY BNP PARIBAS CARDIF OF AXA INVESTMENT MANAGERS - UPDATE',
+     'thumbdown': 'http', 'thumbup': 'http://',
+     'title': '1. <a href=https://....>REF-BNP Paribas SA: ACQUISITION BY BNP PARIBAS CARDIF OF AXA INVESTMENT MANAGERS - UPDATE</a>.'},
+
+    {'company': 'Prudential PLC', 'index': 2, 'summary': 'REG - Prudential PLC Director/PDMR Shareholding',
+     'thumbdown': 'http', 'thumbup': 'http://',
+     'title': '2.<a href=https://....>BRIEF-BNP Paribas Sees Closing O AXA Investment Managers Acquisition In Early July</a>.'}
+]
+
+# 转换成 DataFrame
+news_df = pd.DataFrame(data)
+
+# 初始化 LLM
+llm = OpenAI(temperature=0)
+
+# Prompt Template
 prompt_template = PromptTemplate(
     input_variables=["summary"],
     template="""
@@ -10,34 +36,24 @@ prompt_template = PromptTemplate(
     """
 )
 
-bonds_coupons_related = []
+# 判断每条 summary 是否与 bonds 或 coupons 相关，赋予优先级
+priority = []
 for summary in news_df['summary']:
     prompt = prompt_template.format(summary=summary)
-    response = llm(prompt).strip()  # 获取 LLM 的判断结果
-    bonds_coupons_related.append(response == 'True')
+    response = llm(prompt).strip()
+    if response == 'True':
+        priority.append("low")
+    else:
+        priority.append("medium")
 
-# 将判断结果添加到 DataFrame 中
-news_df['bonds_coupons_related'] = bonds_coupons_related
+# 添加优先级字段
+news_df['priority'] = priority
 
-# 步骤 5: 初始化 Pandas DataFrame Agent
-agent = create_pandas_dataframe_agent(llm, news_df, verbose=True)
+# 根据优先级排序（low 会排在后面）
+priority_order = {"medium": 0, "low": 1}
+news_df = news_df.sort_values(by=news_df['priority'].map(priority_order)).reset_index(drop=True)
 
-# 步骤 6: 使用 Agent 根据 bonds_coupons_related 列排序并更新 index
-query = """
-Sort the dataframe by 'bonds_coupons_related' in ascending order, so that False comes first and True comes last.
-Then, reset the 'index' column to be a sequential integer starting from 0.
-Finally, return the updated dataframe.
-"""
-str_df = agent.run(query)
+# 更新 index
+news_df['index'] = news_df.index
 
-try:
-    sorted_df = pd.read_csv(io.StringIO(str_df))
-except Exception as e:
-    print("解析排序结果出错：", e)
-    sorted_df = news_df.copy()
-
-# 最后确保 index 字段从 0 开始递增
-sorted_df = sorted_df.reset_index(drop=True)
-sorted_df['index'] = sorted_df.index
-
-print(sorted_df)
+print(news_df)
