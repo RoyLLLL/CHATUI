@@ -28,10 +28,16 @@ Sort the dataframe by 'bonds_coupons_related' in ascending order, so that False 
 Then, reset the 'index' column to be a sequential integer starting from 0.
 Finally, return the updated dataframe.
 """
-updated_df = agent.run(query)
+str_df = agent.run(query)
 
-# 步骤 7: 将更新后的 DataFrame 转换为 list
-updated_list = updated_df.to_dict(orient='records')
+try:
+    sorted_df = pd.read_csv(io.StringIO(str_df))
+except Exception as e:
+    print("解析排序结果出错：", e)
+    sorted_df = news_df.copy()
 
-# 输出结果
-print(updated_list)
+# 最后确保 index 字段从 0 开始递增
+sorted_df = sorted_df.reset_index(drop=True)
+sorted_df['index'] = sorted_df.index
+
+print(sorted_df)
