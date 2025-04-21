@@ -1,0 +1,38 @@
+#!/bin/bash
+set -e
+
+# ————————————————
+# 0. 初始化并激活 Conda 环境
+# ————————————————
+# 0.1 指定 Conda 安装路径，并载入 conda.sh 脚本，让非交互式 shell 支持 'conda activate'
+source ~/miniconda3/etc/profile.d/conda.sh                 # 或者替换为您的 Conda 安装目录&#8203;:contentReference[oaicite:1]{index=1}
+# 0.2 激活目标环境
+conda activate my_env                                      # 将 my_env 替换为您需要的环境名称&#8203;:contentReference[oaicite:2]{index=2}
+
+# ————————————————
+# 1. 停止已有的 Dagster 服务
+# ————————————————
+if pgrep -f dagster-webserver >/dev/null; then                # 检查是否有 UI 进程运行&#8203;:contentReference[oaicite:3]{index=3}
+  pkill -f dagster-webserver                                 # 优雅停止 Webserver&#8203;:contentReference[oaicite:4]{index=4}
+  echo "Stopped existing dagster-webserver"
+fi
+
+if pgrep -f dagster-daemon >/dev/null; then                  # 检查 Daemon 进程&#8203;:contentReference[oaicite:5]{index=5}
+  pkill -f dagster-daemon                                    # 停止守护进程&#8203;:contentReference[oaicite:6]{index=6}
+  echo "Stopped existing dagster-daemon"
+fi
+
+# ————————————————
+# 2. 拉取最新代码
+# ————————————————
+cd "${WORKSPACE}/ai-flows"
+git pull origin main                                          # 同步远程 main 分支最新代码&#8203;:contentReference[oaicite:7]{index=7}
+echo "Pulled latest code in ai-flows"
+
+# ————————————————
+# 3. 后台启动 Dagster 服务
+# ————————————————
+nohup dagster-webserver -h 0.0.0.0 -p 3000 > webserver.log 2>&1 &   # 启动 UI 并重定向日志&#8203;:contentReference[oaicite:8]{index=8}
+nohup dagster-daemon run                > daemon.log     2>&1 &   # 启动调度守护进程&#8203;:contentReference[oaicite:9]{index=9}
+
+echo "Dagster services started in background"
