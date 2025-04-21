@@ -1,10 +1,11 @@
 import os
 import asyncio
+from typing_extensions import TypedDict
 from langchain.chat_models import AzureChatOpenAI
 from langchain.schema import HumanMessage
-from langgraph import Graph, Node
+from langgraph.graph import StateGraph, START, END
 
-# Configure Azure OpenAI settings via environment variables
+# Azure OpenAI configuration via environment variables
 azure_api_base = os.getenv("AZURE_OPENAI_API_BASE")
 azure_api_key = os.getenv("AZURE_OPENAI_API_KEY")
 azure_api_version = os.getenv("AZURE_OPENAI_API_VERSION", "2023-03-15-preview")
@@ -19,70 +20,89 @@ chat = AzureChatOpenAI(
     temperature=0
 )
 
-async def is_bonds_or_coupons(text: str) -> bool:
+async def llm_yes_no(prompt: str) -> bool:
     """
-    Use AzureChatOpenAI to determine if the text is about bonds or coupons.
-    Returns True if it is, False otherwise.
+    Helper that returns True if LLM answers 'yes' to the prompt, False otherwise.
     """
+    response = await chat.agenerate([[HumanMessage(content=prompt)]])
+    ans = response.generations[0][0].text.strip().lower()
+    return ans.startswith("yes")
+
+# Node functions accept and return state deltas
+async def check_bonds(state: dict) -> dict:
     prompt = (
-        "Determine whether the following news text is about bonds or coupons. "
-        "Answer with 'yes' or 'no'.\n\n" + text
+        f"Is the following news about bonds or coupons? Answer 'yes' or 'no'.\n\n" 
+        f"{state['text']}"
     )
-    response = await chat.agenerate(
-        [[HumanMessage(content=prompt)]]
-    )
-    answer = response.generations[0][0].text.strip().lower()
-    return answer.startswith("yes")
+    is_bonds = await llm_yes_no(prompt)
+    return {"is_bonds": is_bonds}
 
-async def is_large_transaction(text: str) -> bool:
-    """
-    Use AzureChatOpenAI to determine if the text describes a large financial transaction.
-    Returns True if it does, False otherwise.
-    """
+async def check_large(state: dict) -> dict:
     prompt = (
-        "Determine whether the following news text describes a large financial transaction "
-        "(e.g., major M&A, billion-dollar deal). Answer with 'yes' or 'no'.\n\n" + text
+        f"Does the following describe a large financial transaction (e.g., major M&A or billion-dollar deal)? Answer 'yes' or 'no'.\n\n"
+        f"{state['text']}"
     )
-    response = await chat.agenerate(
-        [[HumanMessage(content=prompt)]]
-    )
-    answer = response.generations[0][0].text.strip().lower()
-    return answer.startswith("yes")
+    is_large = await llm_yes_no(prompt)
+    return {"is_large": is_large}
 
-# Define LangGraph nodes with async LLM-based classification
-def build_graph():
-    node1 = Node(
-        name="Check bonds or coupons",
-        func=is_bonds_or_coupons,
-        outputs={True: "low", False: "to_node2"}
-    )
+# Define the shared state schema
+typestate = TypedDict('State', {
+    'text': str,
+    'is_bonds': bool,
+    'is_large': bool,
+    'classification': str
+})
 
-    node2 = Node(
-        name="Check large transaction",
-        func=is_large_transaction,
-        outputs={True: "high", False: "medium"}
-    )
+# Build the graph
+builder = StateGraph(typestate)
+# Add nodes
+builder.add_node('check_bonds', check_bonds)
+builder.add_node('check_large', check_large)
+builder.add_node('assign_low', lambda state: {'classification': 'low'})
+builder.add_node('assign_medium', lambda state: {'classification': 'medium'})
+builder.add_node('assign_high', lambda state: {'classification': 'high'})
+# Define graph flow
+builder.add_edge(START, 'check_bonds')
+builder.add_conditional_edges(
+    'check_bonds',
+    lambda state: 'assign_low' if state['is_bonds'] else 'check_large'
+)
+builder.add_conditional_edges(
+    'check_large',
+    lambda state: 'assign_high' if state['is_large'] else 'assign_medium'
+)
+builder.add_edge('assign_low', END)
+builder.add_edge('assign_medium', END)
+builder.add_edge('assign_high', END)
+# Mark end nodes
+builder.set_finish_point('assign_low')
+builder.set_finish_point('assign_medium')
+builder.set_finish_point('assign_high')
 
-    return Graph(nodes=[node1, node2], start_node=node1)
+# Compile the graph into a runnable
+graph = builder.compile()
 
 async def classify_news(text: str) -> int:
     """
-    Runs the LangGraph on the input text and maps the result to a numeric label:
-      - 'medium' -> 1
-      - 'low'    -> 2
-      - 'high'   -> 0
+    Invoke the graph to classify `text` and map:
+      medium -> 1, low -> 2, high -> 0
     """
-    graph = build_graph()
-    result = await graph.run(text)
-    mapping = {"medium": 1, "low": 2, "high": 0}
-    return mapping.get(result)
+    initial_state = {
+        'text': text,
+        'is_bonds': False,
+        'is_large': False,
+        'classification': ''
+    }
+    output = await graph.ainvoke(initial_state)
+    mapping = {'medium': 1, 'low': 2, 'high': 0}
+    return mapping.get(output['classification'], -1)
 
 # Example usage
-if __name__ == "__main__":
+if __name__ == '__main__':
     samples = [
-        "The company issued new bonds with a 5% coupon rate.",
-        "The firm closed a $1.2 billion major transaction.",
-        "The company announced a mid-size asset purchase plan."
+        'The company issued new bonds with a 5% coupon rate.',
+        'The firm closed a $1.2 billion major transaction.',
+        'The company announced a mid-size asset purchase plan.'
     ]
 
     async def main():
