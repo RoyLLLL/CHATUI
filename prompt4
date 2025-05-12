@@ -1,0 +1,299 @@
+import React, { useState } from 'react';
+import Select from 'react-select';
+import './NewsletterSubscription.css';
+
+const NewsletterSubscription = () => {
+  // State for form inputs
+  const [email, setEmail] = useState('');
+  const [frequency, setFrequency] = useState('daily');
+  const [time, setTime] = useState('08:00 GMT');
+  const [companies, setCompanies] = useState([
+    { value: 'StateStreet', label: 'StateStreet' },
+    { value: 'BlackRock', label: 'BlackRock' },
+    { value: 'UBS', label: 'UBS' },
+  ]);
+  const [sectors, setSectors] = useState([]);
+  const [transactionTypes, setTransactionTypes] = useState([
+    { value: 'Merger', label: 'Merger' },
+    { value: 'Buy-side', label: 'Buy-side' },
+    { value: 'Valuation', label: 'Valuation' },
+  ]);
+  const [transactionSize, setTransactionSize] = useState('large transactions only');
+  const [regions, setRegions] = useState(['ASP']);
+
+  // Options for multi-select components
+  const companyOptions = [
+    { value: 'StateStreet', label: 'StateStreet' },
+    { value: 'BlackRock', label: 'BlackRock' },
+    { value: 'UBS', label: 'UBS' },
+    { value: 'Goldman Sachs', label: 'Goldman Sachs' },
+    { value: 'Morgan Stanley', label: 'Morgan Stanley' },
+  ];
+
+  const sectorOptions = [
+    { value: 'Finance', label: 'Finance' },
+    { value: 'Technology', label: 'Technology' },
+    { value: 'Healthcare', label: 'Healthcare' },
+  ];
+
+  const transactionTypeOptions = [
+    { value: 'Merger', label: 'Merger' },
+    { value: 'Buy-side', label: 'Buy-side' },
+    { value: 'Valuation', label: 'Valuation' },
+    { value: 'Acquisition', label: 'Acquisition' },
+  ];
+
+  // Generate time options (00:00 GMT to 23:00 GMT)
+  const timeOptions = [...Array(24)].map((_, i) => ({
+    value: `${i.toString().padStart(2, '0')}:00 GMT`,
+    label: `${i.toString().padStart(2, '0')}:00 GMT`,
+  }));
+
+  // Handle region checkbox changes
+  const handleRegionChange = (e) => {
+    const value = e.target.value;
+    if (e.target.checked) {
+      setRegions([...regions, value]);
+    } else {
+      setRegions(regions.filter((region) => region !== value));
+    }
+  };
+
+  // Handle form submission
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    console.log({
+      email,
+      frequency,
+      time,
+      companies,
+      sectors,
+      transactionTypes,
+      transactionSize,
+      regions,
+    });
+    // In a real application, make an API call here to subscribe
+    alert('Subscription preferences saved! (Simulated)');
+  };
+
+  return (
+    <div className="newsletter-subscription">
+      {/* Header */}
+      <header>
+        <button className="logout-btn">Logout</button>
+        <h1>Welcome to our customized news experience!</h1>
+        <p>
+          Select types of news you are interested in—from the latest market insights to key transaction updates—and receive a tailored newsletter straight to your inbox.
+        </p>
+      </header>
+
+      {/* Form */}
+      <form onSubmit={handleSubscribe}>
+        {/* Email Input */}
+        <div className="form-group">
+          <label>
+            Enter your HSBC Email address:
+            <span className="tooltip-icon">
+              ?
+              <span className="tooltip-text">Please enter your HSBC email address.</span>
+            </span>
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="e.g., user@hsbc.com"
+          />
+        </div>
+
+        {/* Frequency Selection */}
+        <div className="form-group">
+          <label>
+            Define preferred newsletter frequency:
+            <span className="tooltip-icon">
+              ?
+              <span className="tooltip-text">Choose how often you want to receive the newsletter.</span>
+            </span>
+          </label>
+          <div className="frequency-group">
+            <select value={frequency} onChange={(e) => setFrequency(e.target.value)}>
+              <option value="daily">daily</option>
+              <option value="weekly">weekly</option>
+              <option value="monthly">monthly</option>
+            </select>
+            <Select
+              options={timeOptions}
+              value={timeOptions.find((option) => option.value === time)}
+              onChange={(selected) => setTime(selected.value)}
+              className="time-select"
+            />
+          </div>
+        </div>
+
+        {/* Company Selection */}
+        <div className="form-group">
+          <label>
+            Limit news selection to specific companies (optional):
+            <span className="tooltip-icon">
+              ?
+              <span className="tooltip-text">Select companies to filter the news.</span>
+            </span>
+          </label>
+          <Select
+            isMulti
+            options={companyOptions}
+            value={companies}
+            onChange={setCompanies}
+            className="multi-select"
+          />
+        </div>
+
+        {/* Sector Selection */}
+        <div className="form-group">
+          <label>
+            Select sector(s) you are interested in (optional):
+            <span className="tooltip-icon">
+              ?
+              <span className="tooltip-text">Select sectors to filter the news. Disabled if companies are selected.</span>
+            </span>
+          </label>
+          <Select
+            isMulti
+            options={sectorOptions}
+            value={sectors}
+            onChange={setSectors}
+            isDisabled={companies.length > 0}
+            className="multi-select"
+          />
+          {companies.length > 0 && (
+            <p className="note">
+              Sector inactive if user selects specific companies as this may generate conflicts.
+            </p>
+          )}
+        </div>
+
+        {/* Transaction Type Selection */}
+        <div className="form-group">
+          <label>
+            Select transaction types you are interested in (optional):
+            <span className="tooltip-icon">
+              ?
+              <span className="tooltip-text">Select transaction types to filter the news.</span>
+            </span>
+          </label>
+          <Select
+            isMulti
+            options={transactionTypeOptions}
+            value={transactionTypes}
+            onChange={setTransactionTypes}
+            className="multi-select"
+          />
+        </div>
+
+        {/* Transaction Size Selection */}
+        <div className="form-group">
+          <label>
+            Define size of transactions you are interested in (optional):
+            <span className="tooltip-icon">
+              ?
+              <span className="tooltip-text">Choose the size of transactions to include.</span>
+            </span>
+          </label>
+          <div className="radio-group">
+            <label>
+              <input
+                type="radio"
+                name="transactionSize"
+                value="medium and large transactions"
+                checked={transactionSize === 'medium and large transactions'}
+                onChange={(e) => setTransactionSize(e.target.value)}
+              />
+              medium and large transactions
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="transactionSize"
+                value="large transactions only"
+                checked={transactionSize === 'large transactions only'}
+                onChange={(e) => setTransactionSize(e.target.value)}
+              />
+              large transactions only
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="transactionSize"
+                value="all transactions"
+                checked={transactionSize === 'all transactions'}
+                onChange={(e) => setTransactionSize(e.target.value)}
+              />
+              all transactions
+            </label>
+          </div>
+        </div>
+
+        {/* Region Selection */}
+        <div className="form-group">
+          <label>
+            Select regions:
+            <span className="tooltip-icon">
+              ?
+              <span className="tooltip-text">Select regions to filter the news.</span>
+            </span>
+          </label>
+          <div className="checkbox-group">
+            <label>
+              <input
+                type="checkbox"
+                name="regions"
+                value="UK"
+                checked={regions.includes('UK')}
+                onChange={handleRegionChange}
+              />
+              UK
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                name="regions"
+                value="EMEA"
+                checked={regions.includes('EMEA')}
+                onChange={handleRegionChange}
+              />
+              EMEA
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                name="regions"
+                value="ASP"
+                checked={regions.includes('ASP')}
+                onChange={handleRegionChange}
+              />
+              ASP
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                name="regions"
+                value="US-LAM"
+                checked={regions.includes('US-LAM')}
+                onChange={handleRegionChange}
+              />
+              US-LAM
+            </label>
+          </div>
+        </div>
+
+        {/* Subscribe Button */}
+        <button type="submit" className="subscribe-btn">
+          Subscribe Now
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default NewsletterSubscription;
