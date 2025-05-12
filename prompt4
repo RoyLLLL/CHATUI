@@ -3,69 +3,159 @@ import Select from 'react-select';
 import './NewsletterSubscription.css';
 
 const NewsletterSubscription = () => {
+  const [email, setEmail] = useState('');
   const [frequency, setFrequency] = useState('daily');
   const [time, setTime] = useState('08:00 GMT');
+  const [companies, setCompanies] = useState([
+    { value: 'StateStreet', label: 'StateStreet' },
+    { value: 'BlackRock', label: 'BlackRock' },
+    { value: 'UBS', label: 'UBS' },
+  ]);
+  const [sectors, setSectors] = useState([]);
+  const [transactionTypes, setTransactionTypes] = useState([
+    { value: 'Merger', label: 'Merger' },
+    { value: 'Buy-side', label: 'Buy-side' },
+    { value: 'Valuation', label: 'Valuation' },
+  ]);
+  const [transactionSize, setTransactionSize] = useState('large transactions only');
+  const [regions, setRegions] = useState(['ASP']);
+
+  const companyOptions = [
+    { value: 'StateStreet', label: 'StateStreet' },
+    { value: 'BlackRock', label: 'BlackRock' },
+    { value: 'UBS', label: 'UBS' },
+    { value: 'Goldman Sachs', label: 'Goldman Sachs' },
+    { value: 'Morgan Stanley', label: 'Morgan Stanley' },
+  ];
+
+  const sectorOptions = [
+    { value: 'Finance', label: 'Finance' },
+    { value: 'Technology', label: 'Technology' },
+    { value: 'Healthcare', label: 'Healthcare' },
+  ];
+
+  const transactionTypeOptions = [
+    { value: 'Merger', label: 'Merger' },
+    { value: 'Buy-side', label: 'Buy-side' },
+    { value: 'Valuation', label: 'Valuation' },
+    { value: 'Acquisition', label: 'Acquisition' },
+  ];
 
   const timeOptions = [...Array(24)].map((_, i) => ({
     value: `${i.toString().padStart(2, '0')}:00 GMT`,
     label: `${i.toString().padStart(2, '0')}:00 GMT`,
   }));
 
+  const handleRegionChange = (e) => {
+    const value = e.target.value;
+    if (e.target.checked) {
+      setRegions([...regions, value]);
+    } else {
+      setRegions(regions.filter((region) => region !== value));
+    }
+  };
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    console.log({
+      email,
+      frequency,
+      time,
+      companies,
+      sectors,
+      transactionTypes,
+      transactionSize,
+      regions,
+    });
+    alert('Subscription preferences saved! (Simulated)');
+  };
+
   return (
     <div className="newsletter-subscription">
-      <div className="form-group">
-        <label>
-          Define preferred newsletter frequency:
-          <span className="tooltip-icon">
-            ?
-            <span className="tooltip-text">
-              Choose how often you want to receive the newsletter.
+      <header>
+        <button className="logout-btn">Logout</button>
+        <h1>Welcome to our customized news experience!</h1>
+        <p>
+          Select types of news you are interested in—from the latest market insights to key transaction updates—and receive a tailored newsletter straight to your inbox.
+        </p>
+      </header>
+
+      <form onSubmit={handleSubscribe}>
+        <div className="form-group">
+          <label>
+            Enter your HSBC Email address:
+            <span className="tooltip-icon">
+              ?
+              <span className="tooltip-text">Please enter your HSBC email address.</span>
             </span>
-          </span>
-        </label>
-        <div className="frequency-options">
-          <label className={`radio-option ${frequency === 'daily' ? 'selected' : ''}`}>
-            <input
-              type="radio"
-              name="frequency"
-              value="daily"
-              checked={frequency === 'daily'}
-              onChange={(e) => setFrequency(e.target.value)}
-            />
-            daily
-            {frequency === 'daily' && (
-              <Select
-                options={timeOptions}
-                value={timeOptions.find((option) => option.value === time)}
-                onChange={(selected) => setTime(selected.value)}
-                className="time-select"
-              />
-            )}
           </label>
-
-          <label className={`radio-option ${frequency === 'weekly' ? 'selected' : ''}`}>
-            <input
-              type="radio"
-              name="frequency"
-              value="weekly"
-              checked={frequency === 'weekly'}
-              onChange={(e) => setFrequency(e.target.value)}
-            />
-            weekly
-          </label>
-
-          <label className={`radio-option ${frequency === 'monthly' ? 'selected' : ''}`}>
-            <input
-              type="radio"
-              name="frequency"
-              value="monthly"
-              checked={frequency === 'monthly'}
-              onChange={(e) => setFrequency(e.target.value)}
-            />
-            monthly
-          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="e.g., user@hsbc.com"
+          />
         </div>
-      </div>
+
+        <div className="form-group">
+          <label>
+            Define preferred newsletter frequency:
+            <span className="tooltip-icon">
+              ?
+              <span className="tooltip-text">Choose how often you want to receive the newsletter.</span>
+            </span>
+          </label>
+          <div className="frequency-options">
+            <label className={`radio-option ${frequency === 'daily' ? 'selected' : ''}`}>
+              <input
+                type="radio"
+                name="frequency"
+                value="daily"
+                checked={frequency === 'daily'}
+                onChange={(e) => setFrequency(e.target.value)}
+              />
+              daily
+            </label>
+
+            <label className={`radio-option ${frequency === 'weekly' ? 'selected' : ''}`}>
+              <input
+                type="radio"
+                name="frequency"
+                value="weekly"
+                checked={frequency === 'weekly'}
+                onChange={(e) => setFrequency(e.target.value)}
+              />
+              weekly
+            </label>
+
+            <label className={`radio-option ${frequency === 'monthly' ? 'selected' : ''}`}>
+              <input
+                type="radio"
+                name="frequency"
+                value="monthly"
+                checked={frequency === 'monthly'}
+                onChange={(e) => setFrequency(e.target.value)}
+              />
+              monthly
+            </label>
+
+            {frequency === 'daily' && (
+              <div className="time-inline-select">
+                <Select
+                  options={timeOptions}
+                  value={timeOptions.find((option) => option.value === time)}
+                  onChange={(selected) => setTime(selected.value)}
+                  className="time-select"
+                  classNamePrefix="react-select"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 省略其他字段以聚焦此 UI 更新 */}
+      </form>
     </div>
   );
 };
