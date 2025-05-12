@@ -3,7 +3,7 @@ import Select from 'react-select';
 import './NewsletterSubscription.css';
 
 const NewsletterSubscription = () => {
-  // State for form inputs
+  // 状态管理
   const [email, setEmail] = useState('');
   const [frequency, setFrequency] = useState('daily');
   const [time, setTime] = useState('08:00 GMT');
@@ -21,7 +21,7 @@ const NewsletterSubscription = () => {
   const [transactionSize, setTransactionSize] = useState('large transactions only');
   const [regions, setRegions] = useState(['ASP']);
 
-  // Options for multi-select components
+  // 多选组件的选项
   const companyOptions = [
     { value: 'StateStreet', label: 'StateStreet' },
     { value: 'BlackRock', label: 'BlackRock' },
@@ -43,13 +43,13 @@ const NewsletterSubscription = () => {
     { value: 'Acquisition', label: 'Acquisition' },
   ];
 
-  // Generate time options (00:00 GMT to 23:00 GMT)
+  // 生成时间选项（00:00 GMT 到 23:00 GMT）
   const timeOptions = [...Array(24)].map((_, i) => ({
     value: `${i.toString().padStart(2, '0')}:00 GMT`,
     label: `${i.toString().padStart(2, '0')}:00 GMT`,
   }));
 
-  // Handle region checkbox changes
+  // 处理地区复选框变化
   const handleRegionChange = (e) => {
     const value = e.target.value;
     if (e.target.checked) {
@@ -59,7 +59,7 @@ const NewsletterSubscription = () => {
     }
   };
 
-  // Handle form submission
+  // 处理表单提交
   const handleSubscribe = (e) => {
     e.preventDefault();
     console.log({
@@ -72,13 +72,13 @@ const NewsletterSubscription = () => {
       transactionSize,
       regions,
     });
-    // In a real application, make an API call here to subscribe
+    // 在实际应用中，此处应调用API进行订阅
     alert('Subscription preferences saved! (Simulated)');
   };
 
   return (
     <div className="newsletter-subscription">
-      {/* Header */}
+      {/* 头部 */}
       <header>
         <button className="logout-btn">Logout</button>
         <h1>Welcome to our customized news experience!</h1>
@@ -87,9 +87,9 @@ const NewsletterSubscription = () => {
         </p>
       </header>
 
-      {/* Form */}
+      {/* 表单 */}
       <form onSubmit={handleSubscribe}>
-        {/* Email Input */}
+        {/* 邮箱输入 */}
         <div className="form-group">
           <label>
             Enter your HSBC Email address:
@@ -107,7 +107,7 @@ const NewsletterSubscription = () => {
           />
         </div>
 
-        {/* Frequency Selection */}
+        {/* 频率选择 */}
         <div className="form-group">
           <label>
             Define preferred newsletter frequency:
@@ -131,7 +131,7 @@ const NewsletterSubscription = () => {
           </div>
         </div>
 
-        {/* Company Selection */}
+        {/* 公司选择 */}
         <div className="form-group">
           <label>
             Limit news selection to specific companies (optional):
@@ -149,7 +149,7 @@ const NewsletterSubscription = () => {
           />
         </div>
 
-        {/* Sector Selection */}
+        {/* 行业选择 */}
         <div className="form-group">
           <label>
             Select sector(s) you are interested in (optional):
@@ -173,7 +173,7 @@ const NewsletterSubscription = () => {
           )}
         </div>
 
-        {/* Transaction Type Selection */}
+        {/* 交易类型选择 */}
         <div className="form-group">
           <label>
             Select transaction types you are interested in (optional):
@@ -191,7 +191,7 @@ const NewsletterSubscription = () => {
           />
         </div>
 
-        {/* Transaction Size Selection */}
+        {/* 交易规模选择 */}
         <div className="form-group">
           <label>
             Define size of transactions you are interested in (optional):
@@ -234,7 +234,7 @@ const NewsletterSubscription = () => {
           </div>
         </div>
 
-        {/* Region Selection */}
+        {/* 地区选择 */}
         <div className="form-group">
           <label>
             Select regions:
@@ -287,7 +287,7 @@ const NewsletterSubscription = () => {
           </div>
         </div>
 
-        {/* Subscribe Button */}
+        {/* 订阅按钮 */}
         <button type="submit" className="subscribe-btn">
           Subscribe Now
         </button>
